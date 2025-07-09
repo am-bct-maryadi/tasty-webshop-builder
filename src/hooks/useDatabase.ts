@@ -169,6 +169,7 @@ const brandSettingsToDb = (settings: BrandSettings) => ({
   social_media: settings.socialMedia,
   footer_text: settings.footerText,
   copyright_text: settings.copyrightText,
+  updated_at: new Date().toISOString(),
 });
 
 export const useDatabase = () => {
@@ -342,17 +343,44 @@ export const useDatabase = () => {
     const { data, error } = await supabase
       .from('brand_settings')
       .select('*')
+      .order('updated_at', { ascending: false })
+      .limit(1)
       .single();
     if (error && error.code !== 'PGRST116') throw error;
     return data ? dbToBrandSettings(data) : null;
   };
 
   const updateBrandSettings = async (settings: BrandSettings): Promise<BrandSettings> => {
-    const { data, error } = await supabase
+    // Check if brand settings already exist
+    const { data: existingData } = await supabase
       .from('brand_settings')
-      .upsert(brandSettingsToDb(settings))
-      .select()
+      .select('id')
+      .limit(1)
       .single();
+
+    let data, error;
+    
+    if (existingData) {
+      // Update existing record
+      const result = await supabase
+        .from('brand_settings')
+        .update(brandSettingsToDb(settings))
+        .eq('id', existingData.id)
+        .select()
+        .single();
+      data = result.data;
+      error = result.error;
+    } else {
+      // Insert new record
+      const result = await supabase
+        .from('brand_settings')
+        .insert(brandSettingsToDb(settings))
+        .select()
+        .single();
+      data = result.data;
+      error = result.error;
+    }
+    
     if (error) throw error;
     return dbToBrandSettings(data);
   };
