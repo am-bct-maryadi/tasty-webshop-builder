@@ -112,14 +112,20 @@ interface NotificationSettings {
 }
 
 interface AdminContextType {
-  // Products
+  // Branch Management
+  selectedAdminBranch: string | null;
+  setSelectedAdminBranch: (branchId: string | null) => void;
+  
+  // Products (filtered by branch)
   products: Product[];
+  allProducts: Product[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
   
-  // Categories
+  // Categories (filtered by branch)
   categories: Category[];
+  allCategories: Category[];
   addCategory: (category: Omit<Category, 'id' | 'count'>) => void;
   updateCategory: (id: string, category: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
@@ -196,7 +202,8 @@ const initialProducts: Product[] = [
     rating: 4.8,
     prepTime: 15,
     isAvailable: true,
-    isPopular: true
+    isPopular: true,
+    branchId: '1'
   },
   {
     id: '2',
@@ -208,7 +215,8 @@ const initialProducts: Product[] = [
     rating: 4.9,
     prepTime: 20,
     isAvailable: true,
-    isPopular: true
+    isPopular: true,
+    branchId: '1'
   },
   {
     id: '3',
@@ -219,7 +227,8 @@ const initialProducts: Product[] = [
     category: 'salads',
     rating: 4.6,
     prepTime: 10,
-    isAvailable: true
+    isAvailable: true,
+    branchId: '2'
   },
   {
     id: '4',
@@ -230,15 +239,29 @@ const initialProducts: Product[] = [
     category: 'beverages',
     rating: 4.7,
     prepTime: 5,
-    isAvailable: true
+    isAvailable: true,
+    branchId: '2'
+  },
+  {
+    id: '5',
+    name: 'Pepperoni Pizza',
+    description: 'Classic pepperoni with mozzarella and tomato sauce',
+    price: 18.99,
+    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=400&fit=crop',
+    category: 'pizza',
+    rating: 4.8,
+    prepTime: 20,
+    isAvailable: true,
+    branchId: '3'
   }
 ];
 
 const initialCategories: Category[] = [
-  { id: 'burgers', name: 'Burgers', count: 1 },
-  { id: 'pizza', name: 'Pizza', count: 1 },
-  { id: 'salads', name: 'Salads', count: 1 },
-  { id: 'beverages', name: 'Beverages', count: 1 }
+  { id: 'burgers', name: 'Burgers', count: 1, branchId: '1' },
+  { id: 'pizza', name: 'Pizza', count: 2, branchId: '1' },
+  { id: 'salads-2', name: 'Salads', count: 1, branchId: '2' },
+  { id: 'beverages-2', name: 'Beverages', count: 1, branchId: '2' },
+  { id: 'pizza-3', name: 'Pizza', count: 1, branchId: '3' }
 ];
 
 const initialBranches: Branch[] = [
@@ -377,15 +400,26 @@ interface AdminProviderProps {
 }
 
 export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>(() => {
+  const [selectedAdminBranch, setSelectedAdminBranch] = useState<string | null>(null);
+  
+  const [allProducts, setAllProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('foodieapp-products');
     return saved ? JSON.parse(saved) : initialProducts;
   });
 
-  const [categories, setCategories] = useState<Category[]>(() => {
+  const [allCategories, setAllCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('foodieapp-categories');
     return saved ? JSON.parse(saved) : initialCategories;
   });
+
+  // Filtered data based on selected admin branch
+  const products = selectedAdminBranch 
+    ? allProducts.filter(p => p.branchId === selectedAdminBranch)
+    : allProducts;
+    
+  const categories = selectedAdminBranch 
+    ? allCategories.filter(c => c.branchId === selectedAdminBranch)
+    : allCategories;
 
   const [branches, setBranches] = useState<Branch[]>(() => {
     const saved = localStorage.getItem('foodieapp-branches');
@@ -439,12 +473,12 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
 
   // Save to localStorage whenever data changes
   useEffect(() => {
-    localStorage.setItem('foodieapp-products', JSON.stringify(products));
-  }, [products]);
+    localStorage.setItem('foodieapp-products', JSON.stringify(allProducts));
+  }, [allProducts]);
 
   useEffect(() => {
-    localStorage.setItem('foodieapp-categories', JSON.stringify(categories));
-  }, [categories]);
+    localStorage.setItem('foodieapp-categories', JSON.stringify(allCategories));
+  }, [allCategories]);
 
   useEffect(() => {
     localStorage.setItem('foodieapp-branches', JSON.stringify(branches));
@@ -491,20 +525,21 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     const newProduct: Product = {
       ...productData,
       id: Date.now().toString(),
+      branchId: productData.branchId || selectedAdminBranch || '1',
     };
-    setProducts(prev => [...prev, newProduct]);
+    setAllProducts(prev => [...prev, newProduct]);
     updateCategoryCount();
   };
 
   const updateProduct = (id: string, productData: Partial<Product>) => {
-    setProducts(prev => prev.map(product => 
+    setAllProducts(prev => prev.map(product => 
       product.id === id ? { ...product, ...productData } : product
     ));
     updateCategoryCount();
   };
 
   const deleteProduct = (id: string) => {
-    setProducts(prev => prev.filter(product => product.id !== id));
+    setAllProducts(prev => prev.filter(product => product.id !== id));
     updateCategoryCount();
   };
 
@@ -512,22 +547,23 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   const addCategory = (categoryData: Omit<Category, 'id' | 'count'>) => {
     const newCategory: Category = {
       ...categoryData,
-      id: categoryData.name.toLowerCase().replace(/\s+/g, '-'),
+      id: `${categoryData.name.toLowerCase().replace(/\s+/g, '-')}-${selectedAdminBranch || '1'}`,
       count: 0,
+      branchId: categoryData.branchId || selectedAdminBranch || '1',
     };
-    setCategories(prev => [...prev, newCategory]);
+    setAllCategories(prev => [...prev, newCategory]);
   };
 
   const updateCategory = (id: string, categoryData: Partial<Category>) => {
-    setCategories(prev => prev.map(category => 
+    setAllCategories(prev => prev.map(category => 
       category.id === id ? { ...category, ...categoryData } : category
     ));
   };
 
   const deleteCategory = (id: string) => {
-    setCategories(prev => prev.filter(category => category.id !== id));
+    setAllCategories(prev => prev.filter(category => category.id !== id));
     // Remove products in this category
-    setProducts(prev => prev.filter(product => product.category !== id));
+    setAllProducts(prev => prev.filter(product => product.category !== id));
   };
 
   // Branch CRUD
@@ -697,18 +733,22 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
 
   // Update category counts based on products
   const updateCategoryCount = () => {
-    setCategories(prev => prev.map(category => ({
+    setAllCategories(prev => prev.map(category => ({
       ...category,
-      count: products.filter(product => product.category === category.id).length
+      count: allProducts.filter(product => product.category === category.id && product.branchId === category.branchId).length
     })));
   };
 
   const value: AdminContextType = {
+    selectedAdminBranch,
+    setSelectedAdminBranch,
     products,
+    allProducts,
     addProduct,
     updateProduct,
     deleteProduct,
     categories,
+    allCategories,
     addCategory,
     updateCategory,
     deleteCategory,

@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useToast } from '@/hooks/use-toast';
+import { BranchSelector } from '@/components/admin/BranchSelector';
 import type { Product } from '@/components/product/ProductCard';
 
 export const ProductsManagement: React.FC = () => {
-  const { products, categories, addProduct, updateProduct, deleteProduct } = useAdmin();
+  const { products, categories, addProduct, updateProduct, deleteProduct, selectedAdminBranch, branches } = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -70,6 +71,7 @@ export const ProductsManagement: React.FC = () => {
       prepTime: 15, // Default prep time
       isAvailable: formData.isAvailable,
       isPopular: formData.isPopular,
+      branchId: selectedAdminBranch || '1',
     };
 
     if (editingProduct) {
@@ -124,11 +126,18 @@ export const ProductsManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <BranchSelector />
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Products Management</h1>
-          <p className="text-muted-foreground">Manage your menu items</p>
+          <p className="text-muted-foreground">
+            {selectedAdminBranch 
+              ? `Managing products for: ${branches.find(b => b.id === selectedAdminBranch)?.name}`
+              : 'Managing all products across branches'
+            }
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

@@ -9,13 +9,14 @@ import { Input } from '@/components/ui/input';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
+import { BranchSelector } from '@/components/admin/BranchSelector';
 
 interface CategoryFormData {
   name: string;
 }
 
 export const CategoriesManagement: React.FC = () => {
-  const { categories, addCategory, updateCategory, deleteCategory } = useAdmin();
+  const { categories, addCategory, updateCategory, deleteCategory, selectedAdminBranch, branches } = useAdmin();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
@@ -32,7 +33,7 @@ export const CategoriesManagement: React.FC = () => {
         updateCategory(editingCategory, data);
         toast({ title: "Category updated successfully" });
       } else {
-        addCategory(data);
+        addCategory({ ...data, branchId: selectedAdminBranch || '1' });
         toast({ title: "Category added successfully" });
       }
       setIsDialogOpen(false);
@@ -70,10 +71,17 @@ export const CategoriesManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <BranchSelector />
+      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Category Management</h1>
-          <p className="text-muted-foreground">Organize your menu items</p>
+          <p className="text-muted-foreground">
+            {selectedAdminBranch 
+              ? `Managing categories for: ${branches.find(b => b.id === selectedAdminBranch)?.name}`
+              : 'Managing all categories across branches'
+            }
+          </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

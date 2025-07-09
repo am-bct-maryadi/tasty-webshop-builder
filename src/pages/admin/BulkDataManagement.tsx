@@ -21,7 +21,7 @@ interface ImportRow {
 }
 
 export const BulkDataManagement: React.FC = () => {
-  const { products, addProduct, updateProduct, categories, addCategory, updateCategory, inventory, updateInventory } = useAdmin();
+  const { products, addProduct, updateProduct, categories, addCategory, updateCategory, inventory, updateInventory, selectedAdminBranch } = useAdmin();
   const { toast } = useToast();
   const [selectedType, setSelectedType] = useState<'products' | 'categories' | 'inventory'>('products');
   const [file, setFile] = useState<File | null>(null);
@@ -224,7 +224,8 @@ export const BulkDataManagement: React.FC = () => {
                   prepTime: Number(row.data.prepTime) || 0,
                   isAvailable: Boolean(row.data.isAvailable),
                   isPopular: Boolean(row.data.isPopular),
-                  image: row.data.image || ''
+                  image: row.data.image || '',
+                  branchId: selectedAdminBranch || '1'
                 });
               }
               break;
@@ -232,7 +233,7 @@ export const BulkDataManagement: React.FC = () => {
               if (row.data.id && categories.find(c => c.id === row.data.id)) {
                 updateCategory(row.data.id, { name: row.data.name });
               } else {
-                addCategory({ name: row.data.name });
+                addCategory({ name: row.data.name, branchId: selectedAdminBranch || '1' });
               }
               break;
             case 'inventory':

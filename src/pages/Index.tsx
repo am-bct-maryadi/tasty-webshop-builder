@@ -64,7 +64,12 @@ const Index = () => {
             onSelectBranch={handleBranchSelection} 
             selectedBranch={selectedBranch}
           />
-          {selectedBranch && <ProductCatalog promoCode={claimedPromoCode} />}
+          {selectedBranch && (
+            <ProductCatalog 
+              promoCode={claimedPromoCode} 
+              selectedBranch={selectedBranch}
+            />
+          )}
         </main>
         
         <PromoPopup 

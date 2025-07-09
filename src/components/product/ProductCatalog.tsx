@@ -9,12 +9,23 @@ import { CartSheet, type CartItem } from '../cart/CartSheet';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useToast } from '@/hooks/use-toast';
 
+
 interface ProductCatalogProps {
   promoCode?: string;
+  selectedBranch?: string;
 }
 
-export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode }) => {
-  const { products, categories } = useAdmin();
+export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selectedBranch }) => {
+  const { allProducts, allCategories } = useAdmin();
+  
+  // Filter products and categories by selected branch
+  const products = selectedBranch 
+    ? allProducts.filter(p => p.branchId === selectedBranch)
+    : allProducts;
+    
+  const categories = selectedBranch 
+    ? allCategories.filter(c => c.branchId === selectedBranch)
+    : allCategories;
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);

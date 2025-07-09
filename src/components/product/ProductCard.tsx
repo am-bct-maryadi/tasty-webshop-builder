@@ -15,6 +15,7 @@ export interface Product {
   prepTime: number;
   isAvailable: boolean;
   isPopular?: boolean;
+  branchId: string;
 }
 
 interface ProductCardProps {
