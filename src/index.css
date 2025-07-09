@@ -198,11 +198,11 @@
 
   /* === FOOD CARD ANIMATIONS === */
   .food-card {
-    @apply bg-gradient-card rounded-lg shadow-soft transition-smooth hover:shadow-medium hover:scale-105;
+    @apply bg-gradient-card rounded-xl shadow-soft transition-smooth hover:shadow-strong;
   }
   
   .food-card:hover {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(-4px) scale(1.02);
   }
 
   /* === MOBILE OPTIMIZATIONS === */
@@ -211,7 +211,7 @@
   }
   
   .mobile-grid {
-    @apply grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4;
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3;
   }
 
   /* === BUTTON ANIMATIONS === */

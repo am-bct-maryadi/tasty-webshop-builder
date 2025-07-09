@@ -194,7 +194,12 @@ export const ProductCatalog: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="mobile-grid">
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">Our Menu</h2>
+              <p className="text-muted-foreground">Delicious food made fresh daily</p>
+            </div>
+            <div className="mobile-grid">
             {filteredProducts.map((product, index) => (
               <div
                 key={product.id}
@@ -213,6 +218,7 @@ export const ProductCatalog: React.FC = () => {
                 />
               </div>
             ))}
+            </div>
           </div>
         )}
       </div>
