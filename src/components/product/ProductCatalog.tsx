@@ -6,93 +6,15 @@ import { ProductCard, type Product } from './ProductCard';
 import { ProductDetails } from './ProductDetails';
 import { CategoryFilter, type Category } from './CategoryFilter';
 import { CartSheet, type CartItem } from '../cart/CartSheet';
+import { useAdmin } from '@/contexts/AdminContext';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data - replace with Supabase data in production
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Classic Cheeseburger',
-    description: 'Juicy beef patty with cheese, lettuce, tomato, and our special sauce',
-    price: 12.99,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop',
-    category: 'burgers',
-    rating: 4.8,
-    prepTime: 15,
-    isAvailable: true,
-    isPopular: true
-  },
-  {
-    id: '2',
-    name: 'Margherita Pizza',
-    description: 'Fresh mozzarella, basil, and tomato sauce on crispy dough',
-    price: 16.99,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=400&fit=crop',
-    category: 'pizza',
-    rating: 4.9,
-    prepTime: 20,
-    isAvailable: true,
-    isPopular: true
-  },
-  {
-    id: '3',
-    name: 'Caesar Salad',
-    description: 'Crisp romaine lettuce, parmesan, croutons, and caesar dressing',
-    price: 9.99,
-    image: 'https://images.unsplash.com/photo-1551248429-40975aa4de74?w=400&h=400&fit=crop',
-    category: 'salads',
-    rating: 4.6,
-    prepTime: 10,
-    isAvailable: true
-  },
-  {
-    id: '4',
-    name: 'Iced Coffee',
-    description: 'Premium cold brew coffee served with ice and your choice of milk',
-    price: 4.99,
-    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=400&fit=crop',
-    category: 'beverages',
-    rating: 4.7,
-    prepTime: 5,
-    isAvailable: true
-  },
-  {
-    id: '5',
-    name: 'Chicken Wings',
-    description: 'Crispy wings with your choice of sauce: BBQ, Buffalo, or Honey Garlic',
-    price: 14.99,
-    image: 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&h=400&fit=crop',
-    category: 'appetizers',
-    rating: 4.5,
-    prepTime: 18,
-    isAvailable: false
-  },
-  {
-    id: '6',
-    name: 'Chocolate Milkshake',
-    description: 'Rich and creamy chocolate milkshake topped with whipped cream',
-    price: 6.99,
-    image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=400&fit=crop',
-    category: 'beverages',
-    rating: 4.8,
-    prepTime: 5,
-    isAvailable: true
-  }
-];
-
-const mockCategories: Category[] = [
-  { id: 'burgers', name: 'Burgers', count: 1 },
-  { id: 'pizza', name: 'Pizza', count: 1 },
-  { id: 'salads', name: 'Salads', count: 1 },
-  { id: 'appetizers', name: 'Appetizers', count: 1 },
-  { id: 'beverages', name: 'Beverages', count: 2 }
-];
 
 interface ProductCatalogProps {
   promoCode?: string;
 }
 
 export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode }) => {
+  const { products, categories } = useAdmin();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -101,7 +23,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode }) => 
   const { toast } = useToast();
 
   const filteredProducts = useMemo(() => {
-    let filtered = mockProducts;
+    let filtered = products;
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -117,7 +39,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode }) => 
     }
 
     return filtered;
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, products]);
 
   const handleAddToCart = (product: Product) => {
     setCartItems(prev => {
@@ -190,7 +112,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode }) => 
 
       {/* Category Filter */}
       <CategoryFilter
-        categories={mockCategories}
+        categories={categories}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
       />
