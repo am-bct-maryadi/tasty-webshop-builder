@@ -37,6 +37,43 @@ interface ThemeSettings {
   compactMode: boolean;
 }
 
+interface Order {
+  id: string;
+  customerName: string;
+  items: Array<{ productId: string; quantity: number; price: number }>;
+  total: number;
+  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  createdAt: string;
+  branchId: string;
+}
+
+interface InventoryItem {
+  quantity: number;
+  lowStockThreshold: number;
+  lastUpdated: string;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  target: 'all' | 'customers' | 'staff';
+  channel: 'push' | 'email' | 'sms';
+  sentAt: string;
+  recipients: number;
+}
+
+interface NotificationSettings {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  smsNotifications: boolean;
+  orderUpdates: boolean;
+  promotions: boolean;
+  inventory: boolean;
+  system: boolean;
+}
+
 interface AdminContextType {
   // Products
   products: Product[];
@@ -71,6 +108,22 @@ interface AdminContextType {
   // Theme Settings
   themeSettings: ThemeSettings;
   updateThemeSettings: (settings: Partial<ThemeSettings>) => void;
+  
+  // Orders (for analytics)
+  orders: Order[];
+  analytics: any;
+  
+  // Inventory Management
+  inventory: Record<string, InventoryItem>;
+  updateInventory: (productId: string, quantity: number, operation: 'add' | 'subtract' | 'set', notes?: string) => void;
+  addInventoryLog: (productId: string, operation: string, quantity: number, notes?: string) => void;
+  getInventoryAlerts: () => any[];
+  
+  // Notifications
+  notifications: Notification[];
+  notificationSettings: NotificationSettings;
+  sendNotification: (notification: Omit<Notification, 'id' | 'sentAt' | 'recipients'>) => void;
+  updateNotificationSettings: (settings: Partial<NotificationSettings>) => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -209,6 +262,27 @@ const initialThemeSettings: ThemeSettings = {
   compactMode: false
 };
 
+const initialOrders: Order[] = [];
+
+const initialInventory: Record<string, InventoryItem> = {
+  '1': { quantity: 50, lowStockThreshold: 10, lastUpdated: new Date().toISOString() },
+  '2': { quantity: 30, lowStockThreshold: 5, lastUpdated: new Date().toISOString() },
+  '3': { quantity: 5, lowStockThreshold: 10, lastUpdated: new Date().toISOString() },
+  '4': { quantity: 100, lowStockThreshold: 20, lastUpdated: new Date().toISOString() },
+};
+
+const initialNotifications: Notification[] = [];
+
+const initialNotificationSettings: NotificationSettings = {
+  emailNotifications: true,
+  pushNotifications: true,
+  smsNotifications: false,
+  orderUpdates: true,
+  promotions: true,
+  inventory: true,
+  system: true,
+};
+
 interface AdminProviderProps {
   children: React.ReactNode;
 }
@@ -244,6 +318,26 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : initialThemeSettings;
   });
 
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('foodieapp-orders');
+    return saved ? JSON.parse(saved) : initialOrders;
+  });
+
+  const [inventory, setInventory] = useState<Record<string, InventoryItem>>(() => {
+    const saved = localStorage.getItem('foodieapp-inventory');
+    return saved ? JSON.parse(saved) : initialInventory;
+  });
+
+  const [notifications, setNotifications] = useState<Notification[]>(() => {
+    const saved = localStorage.getItem('foodieapp-notifications');
+    return saved ? JSON.parse(saved) : initialNotifications;
+  });
+
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(() => {
+    const saved = localStorage.getItem('foodieapp-notification-settings');
+    return saved ? JSON.parse(saved) : initialNotificationSettings;
+  });
+
   // Save to localStorage whenever data changes
   useEffect(() => {
     localStorage.setItem('foodieapp-products', JSON.stringify(products));
@@ -268,6 +362,22 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('foodieapp-theme', JSON.stringify(themeSettings));
   }, [themeSettings]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-inventory', JSON.stringify(inventory));
+  }, [inventory]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-notification-settings', JSON.stringify(notificationSettings));
+  }, [notificationSettings]);
 
   // Product CRUD
   const addProduct = (productData: Omit<Product, 'id'>) => {
@@ -375,6 +485,68 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     setThemeSettings(prev => ({ ...prev, ...settingsData }));
   };
 
+  // Inventory Management
+  const updateInventory = (productId: string, quantity: number, operation: 'add' | 'subtract' | 'set', notes?: string) => {
+    setInventory(prev => {
+      const current = prev[productId] || { quantity: 0, lowStockThreshold: 10, lastUpdated: new Date().toISOString() };
+      let newQuantity = current.quantity;
+      
+      switch (operation) {
+        case 'add':
+          newQuantity += quantity;
+          break;
+        case 'subtract':
+          newQuantity = Math.max(0, current.quantity - quantity);
+          break;
+        case 'set':
+          newQuantity = quantity;
+          break;
+      }
+      
+      return {
+        ...prev,
+        [productId]: {
+          ...current,
+          quantity: newQuantity,
+          lastUpdated: new Date().toISOString(),
+        }
+      };
+    });
+    
+    addInventoryLog(productId, operation, quantity, notes);
+  };
+
+  const addInventoryLog = (productId: string, operation: string, quantity: number, notes?: string) => {
+    // In a real app, this would add to an inventory log table
+    console.log(`Inventory log: ${operation} ${quantity} units for product ${productId}. Notes: ${notes || 'None'}`);
+  };
+
+  const getInventoryAlerts = () => {
+    return Object.entries(inventory).filter(([productId, item]) => 
+      item.quantity <= item.lowStockThreshold
+    ).map(([productId, item]) => ({
+      productId,
+      currentStock: item.quantity,
+      threshold: item.lowStockThreshold,
+    }));
+  };
+
+  // Notifications
+  const sendNotification = (notificationData: Omit<Notification, 'id' | 'sentAt' | 'recipients'>) => {
+    const newNotification: Notification = {
+      ...notificationData,
+      id: Date.now().toString(),
+      sentAt: new Date().toISOString(),
+      recipients: notificationData.target === 'all' ? 1000 : notificationData.target === 'customers' ? 800 : 200,
+    };
+    
+    setNotifications(prev => [newNotification, ...prev]);
+  };
+
+  const updateNotificationSettings = (settingsData: Partial<NotificationSettings>) => {
+    setNotificationSettings(prev => ({ ...prev, ...settingsData }));
+  };
+
   // Update category counts based on products
   const updateCategoryCount = () => {
     setCategories(prev => prev.map(category => ({
@@ -406,6 +578,16 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     deleteUser,
     themeSettings,
     updateThemeSettings,
+    orders,
+    analytics: {},
+    inventory,
+    updateInventory,
+    addInventoryLog,
+    getInventoryAlerts,
+    notifications,
+    notificationSettings,
+    sendNotification,
+    updateNotificationSettings,
   };
 
   return (

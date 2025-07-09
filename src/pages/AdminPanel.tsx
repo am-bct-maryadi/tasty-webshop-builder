@@ -6,6 +6,9 @@ import { BranchesManagement } from './admin/BranchesManagement';
 import { CategoriesManagement } from './admin/CategoriesManagement';
 import { PromosManagement } from './admin/PromosManagement';
 import { SettingsManagement } from './admin/SettingsManagement';
+import { AnalyticsManagement } from './admin/AnalyticsManagement';
+import { InventoryManagement } from './admin/InventoryManagement';
+import { NotificationManagement } from './admin/NotificationManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
@@ -25,6 +28,9 @@ const AdminPanel: React.FC = () => {
     { id: 'categories', label: 'Categories', icon: Tags },
     { id: 'branches', label: 'Branches', icon: MapPin },
     { id: 'promos', label: 'Promo Codes', icon: Tags },
+    { id: 'analytics', label: 'Analytics', icon: Package },
+    { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'notifications', label: 'Notifications', icon: Package },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -40,6 +46,12 @@ const AdminPanel: React.FC = () => {
         return <BranchesManagement />;
       case 'promos':
         return <PromosManagement />;
+      case 'analytics':
+        return <AnalyticsManagement />;
+      case 'inventory':
+        return <InventoryManagement />;
+      case 'notifications':
+        return <NotificationManagement />;
       case 'settings':
         return <SettingsManagement />;
       default:
