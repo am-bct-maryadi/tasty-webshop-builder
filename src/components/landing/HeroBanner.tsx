@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAdmin } from '@/contexts/AdminContext';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import heroImage from '@/assets/hero-food-banner.jpg';
 
@@ -27,6 +28,8 @@ const bannerSlides = [
 ];
 
 export const HeroBanner: React.FC = () => {
+  const { brandSettings } = useAdmin();
+
   return (
     <div className="relative w-full">
       <Carousel className="w-full" opts={{ align: "start", loop: true }}>
@@ -45,6 +48,19 @@ export const HeroBanner: React.FC = () => {
                 {/* Content */}
                 <div className="relative flex items-center justify-center h-full px-6 py-12">
                   <div className="text-center max-w-2xl">
+                    {/* Brand Logo */}
+                    {brandSettings.logo && (
+                      <div className="flex justify-center mb-6">
+                        <img 
+                          src={brandSettings.logo} 
+                          alt={brandSettings.companyName} 
+                          className="h-16 md:h-20 w-auto"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 animate-fade-in">
                       {slide.title}
                     </h1>

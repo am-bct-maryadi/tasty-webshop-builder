@@ -11,16 +11,23 @@ import { Switch } from '@/components/ui/switch';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
+import { BranchSelector } from '@/components/admin/BranchSelector';
 
 interface UserFormData {
   username: string;
   email: string;
   role: 'admin' | 'manager' | 'staff';
   isActive: boolean;
+  branchId: string;
 }
 
 export const UserManagement: React.FC = () => {
-  const { users, addUser, updateUser, deleteUser } = useAdmin();
+  const { users, addUser, updateUser, deleteUser, branches, selectedAdminBranch } = useAdmin();
+  
+  // Filter users based on selected branch
+  const filteredUsers = selectedAdminBranch 
+    ? users.filter(u => u.branchId === selectedAdminBranch || u.branchId === 'all')
+    : users;
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<string | null>(null);
@@ -31,6 +38,7 @@ export const UserManagement: React.FC = () => {
       email: '',
       role: 'staff',
       isActive: true,
+      branchId: selectedAdminBranch || 'all',
     },
   });
 
@@ -58,6 +66,7 @@ export const UserManagement: React.FC = () => {
       email: user.email,
       role: user.role,
       isActive: user.isActive,
+      branchId: user.branchId,
     });
     setIsDialogOpen(true);
   };
@@ -78,6 +87,7 @@ export const UserManagement: React.FC = () => {
       email: '',
       role: 'staff',
       isActive: true,
+      branchId: selectedAdminBranch || 'all',
     });
     setIsDialogOpen(true);
   };
@@ -92,7 +102,9 @@ export const UserManagement: React.FC = () => {
   };
 
   return (
-    <Card>
+    <div className="space-y-6">
+      <BranchSelector />
+      <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -149,28 +161,56 @@ export const UserManagement: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="manager">Manager</SelectItem>
-                            <SelectItem value="staff">Staff</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Role</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="manager">Manager</SelectItem>
+                              <SelectItem value="staff">Staff</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="branchId"
+                      rules={{ required: "Branch is required" }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Branch</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select branch" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="all">All Branches</SelectItem>
+                              {branches.map((branch) => (
+                                <SelectItem key={branch.id} value={branch.id}>
+                                  {branch.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={form.control}
                     name="isActive"
@@ -212,12 +252,13 @@ export const UserManagement: React.FC = () => {
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Branch</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
@@ -238,6 +279,9 @@ export const UserManagement: React.FC = () => {
                       {user.role}
                     </span>
                   </div>
+                </TableCell>
+                <TableCell>
+                  {user.branchId === 'all' ? 'All Branches' : branches.find(b => b.id === user.branchId)?.name || 'Unknown'}
                 </TableCell>
                 <TableCell>
                   <span className={`text-sm font-medium ${
@@ -271,5 +315,6 @@ export const UserManagement: React.FC = () => {
         </Table>
       </CardContent>
     </Card>
+    </div>
   );
 };

@@ -15,13 +15,15 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Show promo popup after 2 seconds
-    const timer = setTimeout(() => {
-      setShowPromoPopup(true);
-    }, 2000);
+    // Show promo popup after 2 seconds, but only if branch is selected
+    if (selectedBranch) {
+      const timer = setTimeout(() => {
+        setShowPromoPopup(true);
+      }, 2000);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedBranch]);
 
   const handleBranchSelection = (branchId: string) => {
     if (!branchId) {
@@ -76,6 +78,7 @@ const Index = () => {
           isOpen={showPromoPopup} 
           onClose={() => setShowPromoPopup(false)}
           onPromoClaimed={handlePromoClaimed}
+          selectedBranch={selectedBranch}
         />
         
         <Footer />

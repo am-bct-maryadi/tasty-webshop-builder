@@ -17,6 +17,7 @@ interface Promo {
   minOrderAmount: number;
   isActive: boolean;
   expiryDate: string;
+  branchId: string;
 }
 
 interface User {
@@ -25,6 +26,7 @@ interface User {
   email: string;
   role: 'admin' | 'manager' | 'staff';
   isActive: boolean;
+  branchId: string;
 }
 
 interface BrandSettings {
@@ -136,14 +138,16 @@ interface AdminContextType {
   updateBranch: (id: string, branch: Partial<Branch>) => void;
   deleteBranch: (id: string) => void;
   
-  // Promos
+  // Promos (filtered by branch)
   promos: Promo[];
+  allPromos: Promo[];
   addPromo: (promo: Omit<Promo, 'id'>) => void;
   updatePromo: (id: string, promo: Partial<Promo>) => void;
   deletePromo: (id: string) => void;
   
-  // Users
+  // Users (filtered by branch)
   users: User[];
+  allUsers: User[];
   addUser: (user: Omit<User, 'id'>) => void;
   updateUser: (id: string, user: Partial<User>) => void;
   deleteUser: (id: string) => void;
@@ -293,7 +297,8 @@ const initialPromos: Promo[] = [
     value: 20,
     minOrderAmount: 50,
     isActive: true,
-    expiryDate: '2024-12-31'
+    expiryDate: '2024-12-31',
+    branchId: '1'
   },
   {
     id: '2',
@@ -302,7 +307,8 @@ const initialPromos: Promo[] = [
     value: 10,
     minOrderAmount: 30,
     isActive: true,
-    expiryDate: '2024-06-30'
+    expiryDate: '2024-06-30',
+    branchId: '2'
   }
 ];
 
@@ -312,14 +318,16 @@ const initialUsers: User[] = [
     username: 'admin',
     email: 'admin@foodieapp.com',
     role: 'admin',
-    isActive: true
+    isActive: true,
+    branchId: 'all'
   },
   {
     id: '2',
     username: 'manager1',
     email: 'manager@foodieapp.com',
     role: 'manager',
-    isActive: true
+    isActive: true,
+    branchId: '1'
   }
 ];
 
@@ -426,15 +434,24 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : initialBranches;
   });
 
-  const [promos, setPromos] = useState<Promo[]>(() => {
+  const [allPromos, setAllPromos] = useState<Promo[]>(() => {
     const saved = localStorage.getItem('foodieapp-promos');
     return saved ? JSON.parse(saved) : initialPromos;
   });
 
-  const [users, setUsers] = useState<User[]>(() => {
+  const [allUsers, setAllUsers] = useState<User[]>(() => {
     const saved = localStorage.getItem('foodieapp-users');
     return saved ? JSON.parse(saved) : initialUsers;
   });
+
+  // Filtered data based on selected admin branch
+  const promos = selectedAdminBranch 
+    ? allPromos.filter(p => p.branchId === selectedAdminBranch)
+    : allPromos;
+    
+  const users = selectedAdminBranch 
+    ? allUsers.filter(u => u.branchId === selectedAdminBranch || u.branchId === 'all')
+    : allUsers;
 
   const [brandSettings, setBrandSettings] = useState<BrandSettings>(() => {
     const saved = localStorage.getItem('foodieapp-brand');
@@ -485,12 +502,12 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   }, [branches]);
 
   useEffect(() => {
-    localStorage.setItem('foodieapp-promos', JSON.stringify(promos));
-  }, [promos]);
+    localStorage.setItem('foodieapp-promos', JSON.stringify(allPromos));
+  }, [allPromos]);
 
   useEffect(() => {
-    localStorage.setItem('foodieapp-users', JSON.stringify(users));
-  }, [users]);
+    localStorage.setItem('foodieapp-users', JSON.stringify(allUsers));
+  }, [allUsers]);
 
   useEffect(() => {
     localStorage.setItem('foodieapp-brand', JSON.stringify(brandSettings));
@@ -591,17 +608,17 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
       ...promoData,
       id: Date.now().toString(),
     };
-    setPromos(prev => [...prev, newPromo]);
+    setAllPromos(prev => [...prev, newPromo]);
   };
 
   const updatePromo = (id: string, promoData: Partial<Promo>) => {
-    setPromos(prev => prev.map(promo => 
+    setAllPromos(prev => prev.map(promo => 
       promo.id === id ? { ...promo, ...promoData } : promo
     ));
   };
 
   const deletePromo = (id: string) => {
-    setPromos(prev => prev.filter(promo => promo.id !== id));
+    setAllPromos(prev => prev.filter(promo => promo.id !== id));
   };
 
   // User CRUD
@@ -610,17 +627,17 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
       ...userData,
       id: Date.now().toString(),
     };
-    setUsers(prev => [...prev, newUser]);
+    setAllUsers(prev => [...prev, newUser]);
   };
 
   const updateUser = (id: string, userData: Partial<User>) => {
-    setUsers(prev => prev.map(user => 
+    setAllUsers(prev => prev.map(user => 
       user.id === id ? { ...user, ...userData } : user
     ));
   };
 
   const deleteUser = (id: string) => {
-    setUsers(prev => prev.filter(user => user.id !== id));
+    setAllUsers(prev => prev.filter(user => user.id !== id));
   };
 
   // Brand Settings
@@ -757,10 +774,12 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     updateBranch,
     deleteBranch,
     promos,
+    allPromos,
     addPromo,
     updatePromo,
     deletePromo,
     users,
+    allUsers,
     addUser,
     updateUser,
     deleteUser,

@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAdmin } from '@/contexts/AdminContext';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
+import { BranchSelector } from '@/components/admin/BranchSelector';
 
 interface PromoFormData {
   code: string;
@@ -19,10 +20,16 @@ interface PromoFormData {
   minOrderAmount: number;
   isActive: boolean;
   expiryDate: string;
+  branchId: string;
 }
 
 export const PromosManagement: React.FC = () => {
-  const { promos, addPromo, updatePromo, deletePromo } = useAdmin();
+  const { promos, addPromo, updatePromo, deletePromo, branches, selectedAdminBranch } = useAdmin();
+  
+  // Filter promos based on selected branch
+  const filteredPromos = selectedAdminBranch 
+    ? promos.filter(p => p.branchId === selectedAdminBranch)
+    : promos;
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<string | null>(null);
@@ -35,6 +42,7 @@ export const PromosManagement: React.FC = () => {
       minOrderAmount: 0,
       isActive: true,
       expiryDate: '',
+      branchId: selectedAdminBranch || '1',
     },
   });
 
@@ -64,6 +72,7 @@ export const PromosManagement: React.FC = () => {
       minOrderAmount: promo.minOrderAmount,
       isActive: promo.isActive,
       expiryDate: promo.expiryDate,
+      branchId: promo.branchId,
     });
     setIsDialogOpen(true);
   };
@@ -86,6 +95,7 @@ export const PromosManagement: React.FC = () => {
       minOrderAmount: 0,
       isActive: true,
       expiryDate: '',
+      branchId: selectedAdminBranch || '1',
     });
     setIsDialogOpen(true);
   };
@@ -96,6 +106,7 @@ export const PromosManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <BranchSelector />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Promo Code Management</h1>
@@ -181,20 +192,45 @@ export const PromosManagement: React.FC = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="expiryDate"
-                  rules={{ required: "Expiry date is required" }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Expiry Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                 <FormField
+                   control={form.control}
+                   name="branchId"
+                   rules={{ required: "Branch is required" }}
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Branch</FormLabel>
+                       <Select onValueChange={field.onChange} defaultValue={field.value}>
+                         <FormControl>
+                           <SelectTrigger>
+                             <SelectValue placeholder="Select branch" />
+                           </SelectTrigger>
+                         </FormControl>
+                         <SelectContent>
+                           {branches.map((branch) => (
+                             <SelectItem key={branch.id} value={branch.id}>
+                               {branch.name}
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 <FormField
+                   control={form.control}
+                   name="expiryDate"
+                   rules={{ required: "Expiry date is required" }}
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Expiry Date</FormLabel>
+                       <FormControl>
+                         <Input type="date" {...field} />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
                 <FormField
                   control={form.control}
                   name="isActive"
@@ -231,7 +267,12 @@ export const PromosManagement: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Promo Codes ({promos.length})</CardTitle>
+          <CardTitle>
+            {selectedAdminBranch 
+              ? `${branches.find(b => b.id === selectedAdminBranch)?.name} Promo Codes (${filteredPromos.length})`
+              : `All Promo Codes (${promos.length})`
+            }
+          </CardTitle>
           <CardDescription>Manage your discount codes and offers</CardDescription>
         </CardHeader>
         <CardContent>
@@ -239,6 +280,7 @@ export const PromosManagement: React.FC = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Code</TableHead>
+                <TableHead>Branch</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Min Order</TableHead>
                 <TableHead>Expiry</TableHead>
@@ -247,13 +289,16 @@ export const PromosManagement: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {promos.map((promo) => (
+              {filteredPromos.map((promo) => (
                 <TableRow key={promo.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       <Percent className="h-4 w-4 text-muted-foreground" />
                       {promo.code}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {branches.find(b => b.id === promo.branchId)?.name || 'Unknown'}
                   </TableCell>
                   <TableCell>{formatDiscount(promo.type, promo.value)}</TableCell>
                   <TableCell>${promo.minOrderAmount}</TableCell>
