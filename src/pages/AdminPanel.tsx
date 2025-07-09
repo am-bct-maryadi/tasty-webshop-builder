@@ -12,6 +12,7 @@ import { NotificationManagement } from './admin/NotificationManagement';
 import { BulkDataManagement } from './admin/BulkDataManagement';
 import { ReleaseNotesManagement } from './admin/ReleaseNotesManagement';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/contexts/AdminContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -19,6 +20,7 @@ import { AdminFooter } from '@/components/layout/AdminFooter';
 
 const AdminPanel: React.FC = () => {
   const { isAuthenticated, isAdmin } = useAuth();
+  const { brandSettings } = useAdmin();
   const [currentPage, setCurrentPage] = useState('dashboard');
 
   if (!isAuthenticated || !isAdmin) {
@@ -75,8 +77,23 @@ const AdminPanel: React.FC = () => {
         <div className="flex h-16 items-center px-4 md:px-6">
           <div className="flex items-center gap-2 md:gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <Package className="h-6 w-6 text-primary" />
-              <span className="font-bold text-base md:text-lg">FoodieApp Admin</span>
+              {brandSettings.logo ? (
+                <img 
+                  src={brandSettings.logo} 
+                  alt={brandSettings.companyName} 
+                  className="h-6 w-auto"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="h-6 w-6 bg-primary rounded flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xs">
+                    {brandSettings.companyName.charAt(0)}
+                  </span>
+                </div>
+              )}
+              <span className="font-bold text-base md:text-lg">{brandSettings.companyName} Admin</span>
             </div>
             
             {currentPage !== 'dashboard' && (
