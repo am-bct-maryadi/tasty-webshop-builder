@@ -481,7 +481,14 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         ]);
 
         setAllProducts(products);
-        setAllCategories(categories);
+        
+        // Update categories with proper counts
+        const updatedCategories = categories.map(cat => ({
+          ...cat,
+          count: products.filter(p => p.category === cat.id && p.branchId === cat.branchId).length
+        }));
+        setAllCategories(updatedCategories);
+        
         setBranches(branchesData);
         setAllPromos(promos);
         setAllUsers(users);
@@ -491,6 +498,15 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         }
       } catch (error) {
         console.error('Error loading data from Supabase:', error);
+        // Use fallback data from database if available
+        setAllProducts(initialProducts);
+        setAllCategories(initialCategories);
+        setBranches(initialBranches);
+        setAllPromos(initialPromos);
+        setAllUsers(initialUsers);
+        setBrandSettings(initialBrandSettings);
+        setThemeSettings(initialThemeSettings);
+        
         toast({
           title: "Error",
           description: "Failed to load data from database. Using default values.",

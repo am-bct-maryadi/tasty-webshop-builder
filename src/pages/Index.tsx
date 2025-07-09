@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { AdminProvider } from '@/contexts/AdminContext';
 import { MobileNav } from '@/components/ui/mobile-nav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ProductCatalog } from '@/components/product/ProductCatalog';
@@ -54,36 +55,38 @@ const Index = () => {
   };
 
   return (
-    <ThemeProvider defaultTheme="default">
-      <div className="min-h-screen bg-background">
-        <MobileNav 
-          currentPage={currentPage} 
-          onNavigate={handleNavigation} 
-        />
-        
-        <main className="pb-16 md:pb-0">
-          <HeroSection 
-            onSelectBranch={handleBranchSelection} 
-            selectedBranch={selectedBranch}
+    <AdminProvider>
+      <ThemeProvider defaultTheme="default">
+        <div className="min-h-screen bg-background">
+          <MobileNav 
+            currentPage={currentPage} 
+            onNavigate={handleNavigation} 
           />
-          {selectedBranch && (
-            <ProductCatalog 
-              promoCode={claimedPromoCode} 
+          
+          <main className="pb-16 md:pb-0">
+            <HeroSection 
+              onSelectBranch={handleBranchSelection} 
               selectedBranch={selectedBranch}
             />
-          )}
-        </main>
-        
-        <PromoPopup 
-          isOpen={showPromoPopup} 
-          onClose={() => setShowPromoPopup(false)}
-          onPromoClaimed={handlePromoClaimed}
-          selectedBranch={selectedBranch}
-        />
-        
-        <Footer />
-      </div>
-    </ThemeProvider>
+            {selectedBranch && (
+              <ProductCatalog 
+                promoCode={claimedPromoCode} 
+                selectedBranch={selectedBranch}
+              />
+            )}
+          </main>
+          
+          <PromoPopup 
+            isOpen={showPromoPopup} 
+            onClose={() => setShowPromoPopup(false)}
+            onPromoClaimed={handlePromoClaimed}
+            selectedBranch={selectedBranch}
+          />
+          
+          <Footer />
+        </div>
+      </ThemeProvider>
+    </AdminProvider>
   );
 };
 

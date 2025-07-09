@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, X, Home, UtensilsCrossed, MapPin, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useAdmin } from '@/contexts/AdminContext';
 
 
 interface MobileNavProps {
@@ -14,6 +15,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   onNavigate 
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const { brandSettings } = useAdmin();
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
@@ -33,8 +35,19 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="w-full flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg">FoodieApp</span>
+            {brandSettings.logo ? (
+              <img 
+                src={brandSettings.logo} 
+                alt={brandSettings.companyName} 
+                className="h-6 w-auto"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <UtensilsCrossed className="h-6 w-6 text-primary" />
+            )}
+            <span className="font-bold text-lg">{brandSettings.companyName}</span>
           </div>
           
           <div className="flex items-center gap-2">
@@ -47,8 +60,19 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               </SheetTrigger>
             <SheetContent side="right" className="w-64">
               <div className="flex items-center gap-2 mb-6">
-                <UtensilsCrossed className="h-6 w-6 text-primary" />
-                <span className="font-bold text-lg">FoodieApp</span>
+                {brandSettings.logo ? (
+                  <img 
+                    src={brandSettings.logo} 
+                    alt={brandSettings.companyName} 
+                    className="h-6 w-auto"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <UtensilsCrossed className="h-6 w-6 text-primary" />
+                )}
+                <span className="font-bold text-lg">{brandSettings.companyName}</span>
               </div>
               
               <nav className="flex flex-col gap-2">

@@ -66,11 +66,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                         <h3 className="font-semibold text-foreground">{branch.name}</h3>
                         {branch.isOpen ? (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                          <span className="text-xs bg-green-500/20 text-green-700 dark:text-green-400 px-2 py-1 rounded-full font-medium border border-green-500/30">
                             Open
                           </span>
                         ) : (
-                          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-medium">
+                          <span className="text-xs bg-red-500/20 text-red-700 dark:text-red-400 px-2 py-1 rounded-full font-medium border border-red-500/30">
                             Closed
                           </span>
                         )}
