@@ -84,7 +84,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       `\n\n🕒 Order placed at: ${new Date().toLocaleString()}`;
 
     // WhatsApp API URL (replace with your business number)
-    const whatsappNumber = "1234567890"; // Replace with actual business WhatsApp number
+    const whatsappNumber = "628158882505"; // Replace with actual business WhatsApp number
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderText)}`;
     
     window.open(whatsappUrl, '_blank');
