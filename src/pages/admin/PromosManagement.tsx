@@ -301,7 +301,7 @@ export const PromosManagement: React.FC = () => {
                     {branches.find(b => b.id === promo.branchId)?.name || 'Unknown'}
                   </TableCell>
                   <TableCell>{formatDiscount(promo.type, promo.value)}</TableCell>
-                  <TableCell>${promo.minOrderAmount}</TableCell>
+                  <TableCell>{promo.minOrderAmount}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />

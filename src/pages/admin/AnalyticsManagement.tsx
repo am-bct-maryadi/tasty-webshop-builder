@@ -91,7 +91,7 @@ export const AnalyticsManagement: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">${revenueMetrics.totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-bold">Rp. {revenueMetrics.totalRevenue.toLocaleString()}</p>
                 <p className="text-xs text-green-600 flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" />
                   +12.5% from last period
@@ -127,7 +127,7 @@ export const AnalyticsManagement: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Average Order Value</p>
-                <p className="text-2xl font-bold">${revenueMetrics.averageOrderValue}</p>
+                <p className="text-2xl font-bold">Rp. {revenueMetrics.averageOrderValue}</p>
                 <p className="text-xs text-green-600 flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" />
                   +3.8% from last period
@@ -206,7 +206,7 @@ export const AnalyticsManagement: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold">${product.revenue}</p>
+                      <p className="font-bold">Rp. {product.revenue}</p>
                       <p className="text-sm text-muted-foreground">Revenue</p>
                     </div>
                   </div>

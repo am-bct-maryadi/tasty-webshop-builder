@@ -142,7 +142,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                   />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm">{item.name}</h4>
-                    <p className="text-primary font-semibold">${item.price}</p>
+                    <p className="text-primary font-semibold">Rp. {item.price}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -243,18 +243,18 @@ export const CartSheet: React.FC<CartSheetProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span>Subtotal:</span>
-                  <span>${subtotal}</span>
+                  <span>Rp. {subtotal}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-success">
                     <span>Discount ({promoCode}):</span>
-                    <span>-${discount}</span>
+                    <span>-Rp. {discount}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between items-center font-semibold text-lg">
                   <span>Total:</span>
-                  <span className="text-primary">${totalPrice}</span>
+                  <span className="text-primary">Rp. {totalPrice}</span>
                 </div>
               </div>
 
