@@ -206,7 +206,7 @@ export const AnalyticsManagement: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold">${product.revenue.toFixed(2)}</p>
+                      <p className="font-bold">${product.revenue}</p>
                       <p className="text-sm text-muted-foreground">Revenue</p>
                     </div>
                   </div>

@@ -288,7 +288,7 @@ export const ProductsManagement: React.FC = () => {
                     {product.description}
                   </p>
                 </div>
-                <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
+                <p className="text-xl font-bold text-primary">${product.price}</p>
               </div>
             </CardHeader>
             <CardContent className="pt-0">

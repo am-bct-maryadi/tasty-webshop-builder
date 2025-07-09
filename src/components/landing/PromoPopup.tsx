@@ -47,8 +47,8 @@ export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose, onPromo
           <div className="text-center">
             <h3 className="text-xl font-semibold mb-2">🎉 Special Offer!</h3>
             <p className="text-lg mb-4">
-              Get {branchPromo.type === 'percentage' ? `${branchPromo.value}%` : `$${branchPromo.value}`} OFF 
-              {branchPromo.minOrderAmount > 0 && ` on orders over $${branchPromo.minOrderAmount}`}
+              Get {branchPromo.type === 'percentage' ? `${branchPromo.value}%` : `Rp. ${branchPromo.value}`} OFF 
+              {branchPromo.minOrderAmount > 0 && ` on orders over Rp. ${branchPromo.minOrderAmount}`}
             </p>
             <div className="bg-white/20 rounded-lg p-3 mb-4">
               <p className="text-sm opacity-90">Use code:</p>

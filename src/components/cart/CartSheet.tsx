@@ -75,11 +75,11 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       `📱 Phone: ${customerInfo.phone}\n\n` +
       `📋 *Order Details:*\n` +
       items.map(item => 
-        `• ${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+        `• ${item.name} x${item.quantity} - Rp. ${(item.price * item.quantity)}`
       ).join('\n') +
-      `\n\n💰 *Subtotal: $${subtotal.toFixed(2)}*` +
-      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -$${discount.toFixed(2)}*` : '') +
-      `\n💸 *Total: $${totalPrice.toFixed(2)}*` +
+      `\n\n💰 *Subtotal: Rp. ${subtotal}*` +
+      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -Rp. ${discount}*` : '') +
+      `\n💸 *Total: Rp. ${totalPrice}*` +
       (customerInfo.notes ? `\n\n📝 *Notes:* ${customerInfo.notes}` : '') +
       `\n\n🕒 Order placed at: ${new Date().toLocaleString()}`;
 
@@ -142,7 +142,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                   />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm">{item.name}</h4>
-                    <p className="text-primary font-semibold">${item.price.toFixed(2)}</p>
+                    <p className="text-primary font-semibold">${item.price}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -232,7 +232,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                 </div>
                 {discount > 0 && (
                   <p className="text-sm text-success">
-                    ✅ {promoCode} applied - You save ${discount.toFixed(2)}!
+                    ✅ {promoCode} applied - You save ${discount}!
                   </p>
                 )}
               </div>
@@ -243,18 +243,18 @@ export const CartSheet: React.FC<CartSheetProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>${subtotal}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-success">
                     <span>Discount ({promoCode}):</span>
-                    <span>-${discount.toFixed(2)}</span>
+                    <span>-${discount}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between items-center font-semibold text-lg">
                   <span>Total:</span>
-                  <span className="text-primary">${totalPrice.toFixed(2)}</span>
+                  <span className="text-primary">${totalPrice}</span>
                 </div>
               </div>
 

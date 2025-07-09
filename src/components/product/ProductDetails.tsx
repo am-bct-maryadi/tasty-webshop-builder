@@ -62,7 +62,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-primary">
-                  ${product.price.toFixed(2)}
+                  ${product.price}
                 </p>
               </div>
             </div>
@@ -107,7 +107,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 }}
                 disabled={!product.isAvailable}
               >
-                {product.isAvailable ? `Add to Cart • $${product.price.toFixed(2)}` : "Currently Unavailable"}
+                {product.isAvailable ? `Add to Cart • Rp. ${product.price}` : "Currently Unavailable"}
               </Button>
             </div>
           </div>

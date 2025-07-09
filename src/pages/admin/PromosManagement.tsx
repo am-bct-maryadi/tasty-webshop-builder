@@ -101,7 +101,7 @@ export const PromosManagement: React.FC = () => {
   };
 
   const formatDiscount = (type: string, value: number) => {
-    return type === 'percentage' ? `${value}%` : `$${value}`;
+    return type === 'percentage' ? `${value}%` : `Rp. ${value}`;
   };
 
   return (
