@@ -83,6 +83,24 @@ interface Notification {
   recipients: number;
 }
 
+interface ReleaseNote {
+  id: string;
+  version: string;
+  title: string;
+  description: string;
+  type: 'major' | 'minor' | 'patch' | 'hotfix';
+  category: 'feature' | 'improvement' | 'bugfix' | 'security';
+  changes: Array<{
+    id: string;
+    description: string;
+    type: 'added' | 'changed' | 'deprecated' | 'removed' | 'fixed' | 'security';
+  }>;
+  isPublished: boolean;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface NotificationSettings {
   emailNotifications: boolean;
   pushNotifications: boolean;
@@ -141,6 +159,13 @@ interface AdminContextType {
   updateInventory: (productId: string, quantity: number, operation: 'add' | 'subtract' | 'set', notes?: string) => void;
   addInventoryLog: (productId: string, operation: string, quantity: number, notes?: string) => void;
   getInventoryAlerts: () => any[];
+  
+  // Release Notes
+  releaseNotes: ReleaseNote[];
+  addReleaseNote: (note: Omit<ReleaseNote, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateReleaseNote: (id: string, note: Partial<ReleaseNote>) => void;
+  deleteReleaseNote: (id: string) => void;
+  publishReleaseNote: (id: string) => void;
   
   // Notifications
   notifications: Notification[];
@@ -313,6 +338,28 @@ const initialInventory: Record<string, InventoryItem> = {
   '4': { quantity: 100, lowStockThreshold: 20, lastUpdated: new Date().toISOString() },
 };
 
+const initialReleaseNotes: ReleaseNote[] = [
+  {
+    id: '1',
+    version: '1.0.0',
+    title: 'Initial Launch',
+    description: 'Welcome to FoodieApp! Our initial release includes all core features.',
+    type: 'major',
+    category: 'feature',
+    changes: [
+      { id: '1', description: 'Product catalog with categories and filters', type: 'added' },
+      { id: '2', description: 'Branch selection and management', type: 'added' },
+      { id: '3', description: 'Shopping cart functionality', type: 'added' },
+      { id: '4', description: 'Admin panel with full CMS', type: 'added' },
+      { id: '5', description: 'Inventory management system', type: 'added' },
+    ],
+    isPublished: true,
+    publishedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+];
+
 const initialNotifications: Notification[] = [];
 
 const initialNotificationSettings: NotificationSettings = {
@@ -375,6 +422,11 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : initialInventory;
   });
 
+  const [releaseNotes, setReleaseNotes] = useState<ReleaseNote[]>(() => {
+    const saved = localStorage.getItem('foodieapp-release-notes');
+    return saved ? JSON.parse(saved) : initialReleaseNotes;
+  });
+
   const [notifications, setNotifications] = useState<Notification[]>(() => {
     const saved = localStorage.getItem('foodieapp-notifications');
     return saved ? JSON.parse(saved) : initialNotifications;
@@ -421,6 +473,10 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('foodieapp-inventory', JSON.stringify(inventory));
   }, [inventory]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-release-notes', JSON.stringify(releaseNotes));
+  }, [releaseNotes]);
 
   useEffect(() => {
     localStorage.setItem('foodieapp-notifications', JSON.stringify(notifications));
@@ -587,6 +643,42 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     }));
   };
 
+  // Release Notes
+  const addReleaseNote = (noteData: Omit<ReleaseNote, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newNote: ReleaseNote = {
+      ...noteData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setReleaseNotes(prev => [newNote, ...prev]);
+  };
+
+  const updateReleaseNote = (id: string, noteData: Partial<ReleaseNote>) => {
+    setReleaseNotes(prev => prev.map(note => 
+      note.id === id 
+        ? { ...note, ...noteData, updatedAt: new Date().toISOString() } 
+        : note
+    ));
+  };
+
+  const deleteReleaseNote = (id: string) => {
+    setReleaseNotes(prev => prev.filter(note => note.id !== id));
+  };
+
+  const publishReleaseNote = (id: string) => {
+    setReleaseNotes(prev => prev.map(note => 
+      note.id === id 
+        ? { 
+            ...note, 
+            isPublished: true, 
+            publishedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          } 
+        : note
+    ));
+  };
+
   // Notifications
   const sendNotification = (notificationData: Omit<Notification, 'id' | 'sentAt' | 'recipients'>) => {
     const newNotification: Notification = {
@@ -642,6 +734,11 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     updateInventory,
     addInventoryLog,
     getInventoryAlerts,
+    releaseNotes,
+    addReleaseNote,
+    updateReleaseNote,
+    deleteReleaseNote,
+    publishReleaseNote,
     notifications,
     notificationSettings,
     sendNotification,

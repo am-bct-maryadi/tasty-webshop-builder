@@ -10,6 +10,7 @@ import { AnalyticsManagement } from './admin/AnalyticsManagement';
 import { InventoryManagement } from './admin/InventoryManagement';
 import { NotificationManagement } from './admin/NotificationManagement';
 import { BulkDataManagement } from './admin/BulkDataManagement';
+import { ReleaseNotesManagement } from './admin/ReleaseNotesManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
@@ -34,6 +35,7 @@ const AdminPanel: React.FC = () => {
     { id: 'analytics', label: 'Analytics', icon: Package },
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'notifications', label: 'Notifications', icon: Package },
+    { id: 'releases', label: 'Release Notes', icon: Package },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -57,6 +59,8 @@ const AdminPanel: React.FC = () => {
         return <InventoryManagement />;
       case 'notifications':
         return <NotificationManagement />;
+      case 'releases':
+        return <ReleaseNotesManagement />;
       case 'settings':
         return <SettingsManagement />;
       default:
