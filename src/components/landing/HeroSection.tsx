@@ -36,13 +36,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
     return (
       <div className="bg-gradient-hero text-white py-6">
         <div className="w-full px-6">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold mb-2">
-              🎉 Welcome to {selectedBranchData?.name}!
-            </h2>
-            <p className="text-sm opacity-90">
-              Browse our delicious menu below and place your order
-            </p>
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">
+                🎉 Welcome to {selectedBranchData?.name}!
+              </h2>
+              <p className="text-sm opacity-90">
+                Browse our delicious menu below and place your order
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onSelectBranch?.('')}
+              className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+            >
+              Change Branch
+            </Button>
           </div>
         </div>
       </div>

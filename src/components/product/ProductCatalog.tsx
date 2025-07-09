@@ -3,6 +3,7 @@ import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ProductCard, type Product } from './ProductCard';
+import { ProductDetails } from './ProductDetails';
 import { CategoryFilter, type Category } from './CategoryFilter';
 import { CartSheet, type CartItem } from '../cart/CartSheet';
 import { useToast } from '@/hooks/use-toast';
@@ -91,6 +92,8 @@ export const ProductCatalog: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showProductDetails, setShowProductDetails] = useState(false);
   const { toast } = useToast();
 
   const filteredProducts = useMemo(() => {
@@ -161,6 +164,11 @@ export const ProductCatalog: React.FC = () => {
     });
   };
 
+  const handleViewDetails = (product: Product) => {
+    setSelectedProduct(product);
+    setShowProductDetails(true);
+  };
+
   return (
     <div className="w-full">
       {/* Search Bar */}
@@ -209,12 +217,7 @@ export const ProductCatalog: React.FC = () => {
                   <ProductCard
                     product={product}
                     onAddToCart={handleAddToCart}
-                    onViewDetails={(product) => {
-                      toast({
-                        title: "Product Details",
-                        description: `Viewing details for ${product.name}`,
-                      });
-                    }}
+                    onViewDetails={handleViewDetails}
                   />
                 </div>
               ))}
@@ -229,6 +232,14 @@ export const ProductCatalog: React.FC = () => {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
+      />
+
+      {/* Product Details Modal */}
+      <ProductDetails
+        product={selectedProduct}
+        isOpen={showProductDetails}
+        onClose={() => setShowProductDetails(false)}
+        onAddToCart={handleAddToCart}
       />
     </div>
   );

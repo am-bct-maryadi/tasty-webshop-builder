@@ -13,11 +13,11 @@ export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md mx-auto bg-gradient-hero border-0 text-white">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-2xl font-bold">
               <Gift className="h-6 w-6" />
               Special Offer!
-            </DialogTitle>
+            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -26,7 +26,7 @@ export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose }) => {
             >
               <X className="h-4 w-4" />
             </Button>
-          </div>
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">

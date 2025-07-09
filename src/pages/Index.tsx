@@ -22,6 +22,10 @@ const Index = () => {
   }, []);
 
   const handleBranchSelection = (branchId: string) => {
+    if (!branchId) {
+      setSelectedBranch(null);
+      return;
+    }
     setSelectedBranch(branchId);
     toast({
       title: "Branch Selected",
