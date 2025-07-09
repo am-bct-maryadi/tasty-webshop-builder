@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Star, Clock } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -81,49 +81,36 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      <div className="p-6 flex-1 flex flex-col justify-between">
-        <div className="mb-4">
+      <div className="p-6 flex-1 flex flex-col">
+        <div className="flex-1 mb-6">
           <h3 className="font-bold text-xl leading-tight mb-3 text-foreground group-hover:text-primary transition-smooth line-clamp-2">
             {product.name}
           </h3>
           
-          <p className="text-base text-muted-foreground line-clamp-3 leading-relaxed mb-4">
+          <p className="text-base text-muted-foreground line-clamp-3 leading-relaxed">
             {product.description}
           </p>
         </div>
 
-        {/* Rating and Time Info */}
-        <div className="flex items-center justify-between mb-5 text-sm">
-          <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1 bg-warning/10 px-3 py-2 rounded-full">
-              <Star className="h-4 w-4 fill-current text-warning" />
-              <span className="font-semibold text-foreground">{product.rating}</span>
-              <span className="text-muted-foreground ml-1">rating</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span className="font-medium">{product.prepTime} min</span>
-          </div>
+        {/* Add to Cart Button - Fixed at bottom */}
+        <div className="mt-auto">
+          <Button
+            variant={product.isAvailable ? "gradient" : "secondary"}
+            size="lg"
+            className="w-full font-bold text-lg h-14 transition-bounce hover:scale-105 active:scale-95 shadow-medium"
+            onClick={() => onAddToCart?.(product)}
+            disabled={!product.isAvailable}
+          >
+            {product.isAvailable ? (
+              <>
+                <Plus className="h-5 w-5 mr-2" />
+                Add to Cart • ${product.price.toFixed(2)}
+              </>
+            ) : (
+              "Currently Unavailable"
+            )}
+          </Button>
         </div>
-
-        {/* Add to Cart Button */}
-        <Button
-          variant={product.isAvailable ? "gradient" : "secondary"}
-          size="lg"
-          className="w-full font-bold text-lg h-14 transition-bounce hover:scale-105 active:scale-95 shadow-medium"
-          onClick={() => onAddToCart?.(product)}
-          disabled={!product.isAvailable}
-        >
-          {product.isAvailable ? (
-            <>
-              <Plus className="h-5 w-5 mr-2" />
-              Add to Cart • ${product.price.toFixed(2)}
-            </>
-          ) : (
-            "Currently Unavailable"
-          )}
-        </Button>
       </div>
     </Card>
   );

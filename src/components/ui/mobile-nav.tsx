@@ -2,7 +2,7 @@ import React from 'react';
 import { Menu, X, Home, UtensilsCrossed, MapPin, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
+
 
 interface MobileNavProps {
   currentPage?: string;
@@ -38,8 +38,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           </div>
           
           <div className="flex items-center gap-2">
-            <ThemeSwitcher />
-            
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
