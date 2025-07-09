@@ -16,7 +16,7 @@ export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose, onPromo
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md mx-auto bg-gradient-hero border-0 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-bold">

@@ -24,19 +24,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl mx-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold text-foreground">
-              Product Details
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="hover:bg-accent"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-2xl font-bold text-foreground">
+            Product Details
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
