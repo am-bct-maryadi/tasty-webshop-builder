@@ -41,7 +41,7 @@ export const BrandManagement: React.FC = () => {
     }
   };
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -55,8 +55,12 @@ export const BrandManagement: React.FC = () => {
     // For demo, we'll use a placeholder URL
     const logoUrl = URL.createObjectURL(file);
     form.setValue('logo', logoUrl);
-    updateBrandSettings({ logo: logoUrl });
-    toast({ title: "Logo updated successfully" });
+    try {
+      await updateBrandSettings({ logo: logoUrl });
+      toast({ title: "Logo updated successfully" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update logo", variant: "destructive" });
+    }
   };
 
   const handleLogoUrl = () => {

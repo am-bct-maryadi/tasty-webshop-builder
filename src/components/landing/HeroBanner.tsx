@@ -61,6 +61,15 @@ export const HeroBanner: React.FC = () => {
                         />
                       </div>
                     )}
+                    {!brandSettings.logo && (
+                      <div className="flex justify-center mb-6">
+                        <div className="h-16 md:h-20 w-20 bg-white/20 rounded-lg flex items-center justify-center">
+                          <span className="text-white font-bold text-2xl">
+                            {brandSettings.companyName.charAt(0)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 animate-fade-in">
                       {slide.title}
                     </h1>

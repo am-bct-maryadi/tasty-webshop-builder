@@ -14,7 +14,7 @@ import { ReleaseNotesManagement } from './admin/ReleaseNotesManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
+import { ArrowLeft, Home, Package, Tags, MapPin, Settings, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { AdminFooter } from '@/components/layout/AdminFooter';
 
@@ -74,7 +74,7 @@ const AdminPanel: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
-        <div className="flex h-16 items-center px-4 md:px-6">
+        <div className="flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2 md:gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               {brandSettings.logo ? (
@@ -108,6 +108,20 @@ const AdminPanel: React.FC = () => {
                 <span className="sm:hidden">Back</span>
               </Button>
             )}
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open('/', '_blank')}
+              className="gap-2"
+            >
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">View Landing Page</span>
+              <ExternalLink className="h-3 w-3" />
+            </Button>
           </div>
         </div>
       </header>

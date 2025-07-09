@@ -66,11 +66,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                         <h3 className="font-semibold text-foreground">{branch.name}</h3>
                         {branch.isOpen ? (
-                          <span className="text-xs bg-success/20 text-success-foreground px-2 py-1 rounded-full">
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
                             Open
                           </span>
                         ) : (
-                          <span className="text-xs bg-destructive/20 text-destructive-foreground px-2 py-1 rounded-full">
+                          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-medium">
                             Closed
                           </span>
                         )}
@@ -82,12 +82,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
                       </div>
                     </div>
                     
-                    <Button
-                      variant={branch.isOpen ? "gradient" : "ghost"}
+                     <Button
+                      variant={branch.isOpen ? "default" : "ghost"}
                       size="sm"
                       disabled={!branch.isOpen}
                       onClick={() => onSelectBranch?.(branch.id)}
-                      className="w-full sm:w-auto sm:ml-4"
+                      className={`w-full sm:w-auto sm:ml-4 ${
+                        branch.isOpen 
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                          : "text-muted-foreground"
+                      }`}
                     >
                       {branch.isOpen ? 'Select' : 'Closed'}
                     </Button>
