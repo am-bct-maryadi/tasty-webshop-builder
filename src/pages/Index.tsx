@@ -4,6 +4,7 @@ import { MobileNav } from '@/components/ui/mobile-nav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ProductCatalog } from '@/components/product/ProductCatalog';
 import { PromoPopup } from '@/components/landing/PromoPopup';
+import { Footer } from '@/components/layout/Footer';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -71,6 +72,8 @@ const Index = () => {
           onClose={() => setShowPromoPopup(false)}
           onPromoClaimed={handlePromoClaimed}
         />
+        
+        <Footer />
       </div>
     </ThemeProvider>
   );

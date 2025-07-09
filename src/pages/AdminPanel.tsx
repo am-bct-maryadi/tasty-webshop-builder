@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { AdminFooter } from '@/components/layout/AdminFooter';
 
 const AdminPanel: React.FC = () => {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -64,7 +65,7 @@ const AdminPanel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
         <div className="flex h-16 items-center px-6">
@@ -144,6 +145,8 @@ const AdminPanel: React.FC = () => {
           })}
         </div>
       </nav>
+
+      <AdminFooter />
     </div>
   );
 };

@@ -27,6 +27,25 @@ interface User {
   isActive: boolean;
 }
 
+interface BrandSettings {
+  companyName: string;
+  logo: string;
+  tagline: string;
+  description: string;
+  website: string;
+  email: string;
+  phone: string;
+  address: string;
+  socialMedia: {
+    facebook: string;
+    twitter: string;
+    instagram: string;
+    linkedin: string;
+  };
+  footerText: string;
+  copyrightText: string;
+}
+
 interface ThemeSettings {
   primaryColor: string;
   accentColor: string;
@@ -104,6 +123,10 @@ interface AdminContextType {
   addUser: (user: Omit<User, 'id'>) => void;
   updateUser: (id: string, user: Partial<User>) => void;
   deleteUser: (id: string) => void;
+  
+  // Brand Settings
+  brandSettings: BrandSettings;
+  updateBrandSettings: (settings: Partial<BrandSettings>) => void;
   
   // Theme Settings
   themeSettings: ThemeSettings;
@@ -252,6 +275,25 @@ const initialUsers: User[] = [
   }
 ];
 
+const initialBrandSettings: BrandSettings = {
+  companyName: 'FoodieApp',
+  logo: '',
+  tagline: 'Delicious food delivered to your door',
+  description: 'We are a premium food delivery service committed to bringing you the best meals from top restaurants in your area.',
+  website: 'https://foodieapp.com',
+  email: 'contact@foodieapp.com',
+  phone: '+1 (555) 123-4567',
+  address: '123 Food Street, Culinary City, FC 12345',
+  socialMedia: {
+    facebook: 'https://facebook.com/foodieapp',
+    twitter: 'https://twitter.com/foodieapp',
+    instagram: 'https://instagram.com/foodieapp',
+    linkedin: 'https://linkedin.com/company/foodieapp',
+  },
+  footerText: 'Your favorite meals, delivered fresh and fast.',
+  copyrightText: '© 2024 FoodieApp. All rights reserved.',
+};
+
 const initialThemeSettings: ThemeSettings = {
   primaryColor: '#2563eb',
   accentColor: '#7c3aed',
@@ -313,6 +355,11 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : initialUsers;
   });
 
+  const [brandSettings, setBrandSettings] = useState<BrandSettings>(() => {
+    const saved = localStorage.getItem('foodieapp-brand');
+    return saved ? JSON.parse(saved) : initialBrandSettings;
+  });
+
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(() => {
     const saved = localStorage.getItem('foodieapp-theme');
     return saved ? JSON.parse(saved) : initialThemeSettings;
@@ -358,6 +405,10 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('foodieapp-users', JSON.stringify(users));
   }, [users]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-brand', JSON.stringify(brandSettings));
+  }, [brandSettings]);
 
   useEffect(() => {
     localStorage.setItem('foodieapp-theme', JSON.stringify(themeSettings));
@@ -480,6 +531,11 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     setUsers(prev => prev.filter(user => user.id !== id));
   };
 
+  // Brand Settings
+  const updateBrandSettings = (settingsData: Partial<BrandSettings>) => {
+    setBrandSettings(prev => ({ ...prev, ...settingsData }));
+  };
+
   // Theme Settings
   const updateThemeSettings = (settingsData: Partial<ThemeSettings>) => {
     setThemeSettings(prev => ({ ...prev, ...settingsData }));
@@ -576,6 +632,8 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     addUser,
     updateUser,
     deleteUser,
+    brandSettings,
+    updateBrandSettings,
     themeSettings,
     updateThemeSettings,
     orders,

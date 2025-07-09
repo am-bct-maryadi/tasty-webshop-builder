@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserManagement } from './UserManagement';
 import { ThemeManagement } from './ThemeManagement';
+import { BrandManagement } from './BrandManagement';
 
 export const SettingsManagement: React.FC = () => {
   return (
@@ -13,8 +14,12 @@ export const SettingsManagement: React.FC = () => {
         <p className="text-muted-foreground">Manage your app configuration and preferences</p>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="brand" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="brand" className="gap-2">
+            <User className="h-4 w-4" />
+            Brand & Company
+          </TabsTrigger>
           <TabsTrigger value="users" className="gap-2">
             <Users className="h-4 w-4" />
             User Management
@@ -24,6 +29,10 @@ export const SettingsManagement: React.FC = () => {
             Theme Settings
           </TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="brand">
+          <BrandManagement />
+        </TabsContent>
         
         <TabsContent value="users">
           <UserManagement />
