@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { AdminLogin } from './admin/AdminLogin';
 import { AdminDashboard } from './admin/AdminDashboard';
 import { ProductsManagement } from './admin/ProductsManagement';
+import { BranchesManagement } from './admin/BranchesManagement';
+import { CategoriesManagement } from './admin/CategoriesManagement';
+import { PromosManagement } from './admin/PromosManagement';
+import { SettingsManagement } from './admin/SettingsManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
@@ -20,6 +24,7 @@ const AdminPanel: React.FC = () => {
     { id: 'products', label: 'Products', icon: Package },
     { id: 'categories', label: 'Categories', icon: Tags },
     { id: 'branches', label: 'Branches', icon: MapPin },
+    { id: 'promos', label: 'Promo Codes', icon: Tags },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -30,11 +35,13 @@ const AdminPanel: React.FC = () => {
       case 'products':
         return <ProductsManagement />;
       case 'categories':
-        return <div>Categories Management (Coming Soon)</div>;
+        return <CategoriesManagement />;
       case 'branches':
-        return <div>Branches Management (Coming Soon)</div>;
+        return <BranchesManagement />;
+      case 'promos':
+        return <PromosManagement />;
       case 'settings':
-        return <div>Settings (Coming Soon)</div>;
+        return <SettingsManagement />;
       default:
         return <AdminDashboard onNavigate={setCurrentPage} />;
     }

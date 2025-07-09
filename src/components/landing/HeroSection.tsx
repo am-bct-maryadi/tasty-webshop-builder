@@ -3,6 +3,7 @@ import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { HeroBanner } from './HeroBanner';
+import { useAdmin } from '@/contexts/AdminContext';
 
 interface HeroSectionProps {
   onSelectBranch?: (branchId: string) => void;
@@ -11,26 +12,7 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, selectedBranch }) => {
   // Get branches from AdminContext instead of hardcoded data
-  const branches = [
-    {
-      id: '1',
-      name: 'Downtown Branch',
-      address: '123 Main Street, Downtown',
-      isOpen: true
-    },
-    {
-      id: '2', 
-      name: 'Mall Branch',
-      address: '456 Shopping Center, North Mall',
-      isOpen: true
-    },
-    {
-      id: '3',
-      name: 'University Branch',
-      address: '789 Campus Drive, University District',
-      isOpen: false
-    }
-  ];
+  const { branches } = useAdmin();
 
   if (selectedBranch) {
     const selectedBranchData = branches.find(b => b.id === selectedBranch);

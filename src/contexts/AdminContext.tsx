@@ -9,6 +9,34 @@ interface Branch {
   isOpen: boolean;
 }
 
+interface Promo {
+  id: string;
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  minOrderAmount: number;
+  isActive: boolean;
+  expiryDate: string;
+}
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: 'admin' | 'manager' | 'staff';
+  isActive: boolean;
+}
+
+interface ThemeSettings {
+  primaryColor: string;
+  accentColor: string;
+  fontFamily: string;
+  fontSize: number;
+  borderRadius: number;
+  darkModeEnabled: boolean;
+  compactMode: boolean;
+}
+
 interface AdminContextType {
   // Products
   products: Product[];
@@ -27,6 +55,22 @@ interface AdminContextType {
   addBranch: (branch: Omit<Branch, 'id'>) => void;
   updateBranch: (id: string, branch: Partial<Branch>) => void;
   deleteBranch: (id: string) => void;
+  
+  // Promos
+  promos: Promo[];
+  addPromo: (promo: Omit<Promo, 'id'>) => void;
+  updatePromo: (id: string, promo: Partial<Promo>) => void;
+  deletePromo: (id: string) => void;
+  
+  // Users
+  users: User[];
+  addUser: (user: Omit<User, 'id'>) => void;
+  updateUser: (id: string, user: Partial<User>) => void;
+  deleteUser: (id: string) => void;
+  
+  // Theme Settings
+  themeSettings: ThemeSettings;
+  updateThemeSettings: (settings: Partial<ThemeSettings>) => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -117,6 +161,54 @@ const initialBranches: Branch[] = [
   }
 ];
 
+const initialPromos: Promo[] = [
+  {
+    id: '1',
+    code: 'WELCOME20',
+    type: 'percentage',
+    value: 20,
+    minOrderAmount: 50,
+    isActive: true,
+    expiryDate: '2024-12-31'
+  },
+  {
+    id: '2',
+    code: 'SAVE10',
+    type: 'fixed',
+    value: 10,
+    minOrderAmount: 30,
+    isActive: true,
+    expiryDate: '2024-06-30'
+  }
+];
+
+const initialUsers: User[] = [
+  {
+    id: '1',
+    username: 'admin',
+    email: 'admin@foodieapp.com',
+    role: 'admin',
+    isActive: true
+  },
+  {
+    id: '2',
+    username: 'manager1',
+    email: 'manager@foodieapp.com',
+    role: 'manager',
+    isActive: true
+  }
+];
+
+const initialThemeSettings: ThemeSettings = {
+  primaryColor: '#2563eb',
+  accentColor: '#7c3aed',
+  fontFamily: 'inter',
+  fontSize: 14,
+  borderRadius: 8,
+  darkModeEnabled: false,
+  compactMode: false
+};
+
 interface AdminProviderProps {
   children: React.ReactNode;
 }
@@ -137,6 +229,21 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : initialBranches;
   });
 
+  const [promos, setPromos] = useState<Promo[]>(() => {
+    const saved = localStorage.getItem('foodieapp-promos');
+    return saved ? JSON.parse(saved) : initialPromos;
+  });
+
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('foodieapp-users');
+    return saved ? JSON.parse(saved) : initialUsers;
+  });
+
+  const [themeSettings, setThemeSettings] = useState<ThemeSettings>(() => {
+    const saved = localStorage.getItem('foodieapp-theme');
+    return saved ? JSON.parse(saved) : initialThemeSettings;
+  });
+
   // Save to localStorage whenever data changes
   useEffect(() => {
     localStorage.setItem('foodieapp-products', JSON.stringify(products));
@@ -149,6 +256,18 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('foodieapp-branches', JSON.stringify(branches));
   }, [branches]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-promos', JSON.stringify(promos));
+  }, [promos]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-users', JSON.stringify(users));
+  }, [users]);
+
+  useEffect(() => {
+    localStorage.setItem('foodieapp-theme', JSON.stringify(themeSettings));
+  }, [themeSettings]);
 
   // Product CRUD
   const addProduct = (productData: Omit<Product, 'id'>) => {
@@ -213,6 +332,49 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     setBranches(prev => prev.filter(branch => branch.id !== id));
   };
 
+  // Promo CRUD
+  const addPromo = (promoData: Omit<Promo, 'id'>) => {
+    const newPromo: Promo = {
+      ...promoData,
+      id: Date.now().toString(),
+    };
+    setPromos(prev => [...prev, newPromo]);
+  };
+
+  const updatePromo = (id: string, promoData: Partial<Promo>) => {
+    setPromos(prev => prev.map(promo => 
+      promo.id === id ? { ...promo, ...promoData } : promo
+    ));
+  };
+
+  const deletePromo = (id: string) => {
+    setPromos(prev => prev.filter(promo => promo.id !== id));
+  };
+
+  // User CRUD
+  const addUser = (userData: Omit<User, 'id'>) => {
+    const newUser: User = {
+      ...userData,
+      id: Date.now().toString(),
+    };
+    setUsers(prev => [...prev, newUser]);
+  };
+
+  const updateUser = (id: string, userData: Partial<User>) => {
+    setUsers(prev => prev.map(user => 
+      user.id === id ? { ...user, ...userData } : user
+    ));
+  };
+
+  const deleteUser = (id: string) => {
+    setUsers(prev => prev.filter(user => user.id !== id));
+  };
+
+  // Theme Settings
+  const updateThemeSettings = (settingsData: Partial<ThemeSettings>) => {
+    setThemeSettings(prev => ({ ...prev, ...settingsData }));
+  };
+
   // Update category counts based on products
   const updateCategoryCount = () => {
     setCategories(prev => prev.map(category => ({
@@ -234,6 +396,16 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     addBranch,
     updateBranch,
     deleteBranch,
+    promos,
+    addPromo,
+    updatePromo,
+    deletePromo,
+    users,
+    addUser,
+    updateUser,
+    deleteUser,
+    themeSettings,
+    updateThemeSettings,
   };
 
   return (

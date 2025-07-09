@@ -11,7 +11,7 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const { logout } = useAuth();
-  const { products, categories, branches } = useAdmin();
+  const { products, categories, branches, promos } = useAdmin();
 
   const stats = [
     {
@@ -46,6 +46,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
     },
+    {
+      title: 'Active Promos',
+      value: promos.filter(p => p.isActive).length,
+      description: 'Current promotions',
+      icon: Tags,
+      color: 'text-pink-600',
+      bgColor: 'bg-pink-100',
+    },
   ];
 
   const menuItems = [
@@ -69,6 +77,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
       icon: MapPin,
       page: 'branches',
       color: 'text-purple-600',
+    },
+    {
+      title: 'Promo Codes',
+      description: 'Create and manage discount codes',
+      icon: Tags,
+      page: 'promos',
+      color: 'text-pink-600',
     },
     {
       title: 'Settings',
