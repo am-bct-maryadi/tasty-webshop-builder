@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Product } from '@/components/product/ProductCard';
 import type { Category } from '@/components/product/CategoryFilter';
+import { useDatabase } from '@/hooks/useDatabase';
+import { useToast } from '@/hooks/use-toast';
 
 interface Branch {
   id: string;
@@ -409,16 +411,12 @@ interface AdminProviderProps {
 
 export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   const [selectedAdminBranch, setSelectedAdminBranch] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const db = useDatabase();
   
-  const [allProducts, setAllProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('foodieapp-products');
-    return saved ? JSON.parse(saved) : initialProducts;
-  });
-
-  const [allCategories, setAllCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('foodieapp-categories');
-    return saved ? JSON.parse(saved) : initialCategories;
-  });
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
 
   // Filtered data based on selected admin branch
   const products = selectedAdminBranch 
@@ -429,20 +427,9 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     ? allCategories.filter(c => c.branchId === selectedAdminBranch)
     : allCategories;
 
-  const [branches, setBranches] = useState<Branch[]>(() => {
-    const saved = localStorage.getItem('foodieapp-branches');
-    return saved ? JSON.parse(saved) : initialBranches;
-  });
-
-  const [allPromos, setAllPromos] = useState<Promo[]>(() => {
-    const saved = localStorage.getItem('foodieapp-promos');
-    return saved ? JSON.parse(saved) : initialPromos;
-  });
-
-  const [allUsers, setAllUsers] = useState<User[]>(() => {
-    const saved = localStorage.getItem('foodieapp-users');
-    return saved ? JSON.parse(saved) : initialUsers;
-  });
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [allPromos, setAllPromos] = useState<Promo[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   // Filtered data based on selected admin branch
   const promos = selectedAdminBranch 
@@ -453,66 +440,71 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     ? allUsers.filter(u => u.branchId === selectedAdminBranch || u.branchId === 'all')
     : allUsers;
 
-  const [brandSettings, setBrandSettings] = useState<BrandSettings>(() => {
-    const saved = localStorage.getItem('foodieapp-brand');
-    return saved ? JSON.parse(saved) : initialBrandSettings;
-  });
-
+  const [brandSettings, setBrandSettings] = useState<BrandSettings>(initialBrandSettings);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(() => {
     const saved = localStorage.getItem('foodieapp-theme');
     return saved ? JSON.parse(saved) : initialThemeSettings;
   });
-
   const [orders, setOrders] = useState<Order[]>(() => {
     const saved = localStorage.getItem('foodieapp-orders');
     return saved ? JSON.parse(saved) : initialOrders;
   });
-
   const [inventory, setInventory] = useState<Record<string, InventoryItem>>(() => {
     const saved = localStorage.getItem('foodieapp-inventory');
     return saved ? JSON.parse(saved) : initialInventory;
   });
-
   const [releaseNotes, setReleaseNotes] = useState<ReleaseNote[]>(() => {
     const saved = localStorage.getItem('foodieapp-release-notes');
     return saved ? JSON.parse(saved) : initialReleaseNotes;
   });
-
   const [notifications, setNotifications] = useState<Notification[]>(() => {
     const saved = localStorage.getItem('foodieapp-notifications');
     return saved ? JSON.parse(saved) : initialNotifications;
   });
-
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(() => {
     const saved = localStorage.getItem('foodieapp-notification-settings');
     return saved ? JSON.parse(saved) : initialNotificationSettings;
   });
 
-  // Save to localStorage whenever data changes
+  // Load data from Supabase on mount
   useEffect(() => {
-    localStorage.setItem('foodieapp-products', JSON.stringify(allProducts));
-  }, [allProducts]);
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        const [products, categories, branchesData, promos, users, brandData] = await Promise.all([
+          db.getProducts(),
+          db.getCategories(),
+          db.getBranches(),
+          db.getPromos(),
+          db.getUsers(),
+          db.getBrandSettings(),
+        ]);
 
-  useEffect(() => {
-    localStorage.setItem('foodieapp-categories', JSON.stringify(allCategories));
-  }, [allCategories]);
+        setAllProducts(products);
+        setAllCategories(categories);
+        setBranches(branchesData);
+        setAllPromos(promos);
+        setAllUsers(users);
+        
+        if (brandData) {
+          setBrandSettings(brandData);
+        }
+      } catch (error) {
+        console.error('Error loading data from Supabase:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load data from database. Using default values.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    localStorage.setItem('foodieapp-branches', JSON.stringify(branches));
-  }, [branches]);
+    loadData();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem('foodieapp-promos', JSON.stringify(allPromos));
-  }, [allPromos]);
-
-  useEffect(() => {
-    localStorage.setItem('foodieapp-users', JSON.stringify(allUsers));
-  }, [allUsers]);
-
-  useEffect(() => {
-    localStorage.setItem('foodieapp-brand', JSON.stringify(brandSettings));
-  }, [brandSettings]);
-
+  // Save localStorage items that still use localStorage (theme, orders, etc.)
   useEffect(() => {
     localStorage.setItem('foodieapp-theme', JSON.stringify(themeSettings));
   }, [themeSettings]);
@@ -538,111 +530,326 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   }, [notificationSettings]);
 
   // Product CRUD
-  const addProduct = (productData: Omit<Product, 'id'>) => {
-    const newProduct: Product = {
-      ...productData,
-      id: Date.now().toString(),
-      branchId: productData.branchId || selectedAdminBranch || '1',
-    };
-    setAllProducts(prev => [...prev, newProduct]);
-    updateCategoryCount();
+  const addProduct = async (productData: Omit<Product, 'id'>) => {
+    try {
+      const productWithBranch = {
+        ...productData,
+        branchId: productData.branchId || selectedAdminBranch || '1',
+      };
+      const newProduct = await db.addProduct(productWithBranch);
+      setAllProducts(prev => [...prev, newProduct]);
+      updateCategoryCount();
+      toast({
+        title: "Success",
+        description: "Product added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add product",
+        variant: "destructive",
+      });
+    }
   };
 
-  const updateProduct = (id: string, productData: Partial<Product>) => {
-    setAllProducts(prev => prev.map(product => 
-      product.id === id ? { ...product, ...productData } : product
-    ));
-    updateCategoryCount();
+  const updateProduct = async (id: string, productData: Partial<Product>) => {
+    try {
+      const updatedProduct = await db.updateProduct(id, productData);
+      setAllProducts(prev => prev.map(product => 
+        product.id === id ? updatedProduct : product
+      ));
+      updateCategoryCount();
+      toast({
+        title: "Success",
+        description: "Product updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update product",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteProduct = (id: string) => {
-    setAllProducts(prev => prev.filter(product => product.id !== id));
-    updateCategoryCount();
+  const deleteProduct = async (id: string) => {
+    try {
+      await db.deleteProduct(id);
+      setAllProducts(prev => prev.filter(product => product.id !== id));
+      updateCategoryCount();
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive",
+      });
+    }
   };
 
   // Category CRUD
-  const addCategory = (categoryData: Omit<Category, 'id' | 'count'>) => {
-    const newCategory: Category = {
-      ...categoryData,
-      id: `${categoryData.name.toLowerCase().replace(/\s+/g, '-')}-${selectedAdminBranch || '1'}`,
-      count: 0,
-      branchId: categoryData.branchId || selectedAdminBranch || '1',
-    };
-    setAllCategories(prev => [...prev, newCategory]);
+  const addCategory = async (categoryData: Omit<Category, 'id' | 'count'>) => {
+    try {
+      const categoryWithId = {
+        ...categoryData,
+        id: `${categoryData.name.toLowerCase().replace(/\s+/g, '-')}-${selectedAdminBranch || '1'}`,
+        branchId: categoryData.branchId || selectedAdminBranch || '1',
+      };
+      const newCategory = await db.addCategory(categoryWithId);
+      setAllCategories(prev => [...prev, newCategory]);
+      toast({
+        title: "Success",
+        description: "Category added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add category",
+        variant: "destructive",
+      });
+    }
   };
 
-  const updateCategory = (id: string, categoryData: Partial<Category>) => {
-    setAllCategories(prev => prev.map(category => 
-      category.id === id ? { ...category, ...categoryData } : category
-    ));
+  const updateCategory = async (id: string, categoryData: Partial<Category>) => {
+    try {
+      const updatedCategory = await db.updateCategory(id, categoryData);
+      setAllCategories(prev => prev.map(category => 
+        category.id === id ? updatedCategory : category
+      ));
+      toast({
+        title: "Success",
+        description: "Category updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteCategory = (id: string) => {
-    setAllCategories(prev => prev.filter(category => category.id !== id));
-    // Remove products in this category
-    setAllProducts(prev => prev.filter(product => product.category !== id));
+  const deleteCategory = async (id: string) => {
+    try {
+      await db.deleteCategory(id);
+      setAllCategories(prev => prev.filter(category => category.id !== id));
+      // Remove products in this category
+      const productsToDelete = allProducts.filter(product => product.category === id);
+      for (const product of productsToDelete) {
+        await db.deleteProduct(product.id);
+      }
+      setAllProducts(prev => prev.filter(product => product.category !== id));
+      toast({
+        title: "Success",
+        description: "Category deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete category",
+        variant: "destructive",
+      });
+    }
   };
 
   // Branch CRUD
-  const addBranch = (branchData: Omit<Branch, 'id'>) => {
-    const newBranch: Branch = {
-      ...branchData,
-      id: Date.now().toString(),
-    };
-    setBranches(prev => [...prev, newBranch]);
+  const addBranch = async (branchData: Omit<Branch, 'id'>) => {
+    try {
+      const newBranch = await db.addBranch(branchData);
+      setBranches(prev => [...prev, newBranch]);
+      toast({
+        title: "Success",
+        description: "Branch added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding branch:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add branch",
+        variant: "destructive",
+      });
+    }
   };
 
-  const updateBranch = (id: string, branchData: Partial<Branch>) => {
-    setBranches(prev => prev.map(branch => 
-      branch.id === id ? { ...branch, ...branchData } : branch
-    ));
+  const updateBranch = async (id: string, branchData: Partial<Branch>) => {
+    try {
+      const updatedBranch = await db.updateBranch(id, branchData);
+      setBranches(prev => prev.map(branch => 
+        branch.id === id ? updatedBranch : branch
+      ));
+      toast({
+        title: "Success",
+        description: "Branch updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating branch:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update branch",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteBranch = (id: string) => {
-    setBranches(prev => prev.filter(branch => branch.id !== id));
+  const deleteBranch = async (id: string) => {
+    try {
+      await db.deleteBranch(id);
+      setBranches(prev => prev.filter(branch => branch.id !== id));
+      toast({
+        title: "Success",
+        description: "Branch deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting branch:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete branch",
+        variant: "destructive",
+      });
+    }
   };
 
   // Promo CRUD
-  const addPromo = (promoData: Omit<Promo, 'id'>) => {
-    const newPromo: Promo = {
-      ...promoData,
-      id: Date.now().toString(),
-    };
-    setAllPromos(prev => [...prev, newPromo]);
+  const addPromo = async (promoData: Omit<Promo, 'id'>) => {
+    try {
+      const newPromo = await db.addPromo(promoData);
+      setAllPromos(prev => [...prev, newPromo]);
+      toast({
+        title: "Success",
+        description: "Promo added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding promo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add promo",
+        variant: "destructive",
+      });
+    }
   };
 
-  const updatePromo = (id: string, promoData: Partial<Promo>) => {
-    setAllPromos(prev => prev.map(promo => 
-      promo.id === id ? { ...promo, ...promoData } : promo
-    ));
+  const updatePromo = async (id: string, promoData: Partial<Promo>) => {
+    try {
+      const updatedPromo = await db.updatePromo(id, promoData);
+      setAllPromos(prev => prev.map(promo => 
+        promo.id === id ? updatedPromo : promo
+      ));
+      toast({
+        title: "Success",
+        description: "Promo updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating promo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update promo",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deletePromo = (id: string) => {
-    setAllPromos(prev => prev.filter(promo => promo.id !== id));
+  const deletePromo = async (id: string) => {
+    try {
+      await db.deletePromo(id);
+      setAllPromos(prev => prev.filter(promo => promo.id !== id));
+      toast({
+        title: "Success",
+        description: "Promo deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting promo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete promo",
+        variant: "destructive",
+      });
+    }
   };
 
   // User CRUD
-  const addUser = (userData: Omit<User, 'id'>) => {
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
-    };
-    setAllUsers(prev => [...prev, newUser]);
+  const addUser = async (userData: Omit<User, 'id'>) => {
+    try {
+      const newUser = await db.addUser(userData);
+      setAllUsers(prev => [...prev, newUser]);
+      toast({
+        title: "Success",
+        description: "User added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add user",
+        variant: "destructive",
+      });
+    }
   };
 
-  const updateUser = (id: string, userData: Partial<User>) => {
-    setAllUsers(prev => prev.map(user => 
-      user.id === id ? { ...user, ...userData } : user
-    ));
+  const updateUser = async (id: string, userData: Partial<User>) => {
+    try {
+      const updatedUser = await db.updateUser(id, userData);
+      setAllUsers(prev => prev.map(user => 
+        user.id === id ? updatedUser : user
+      ));
+      toast({
+        title: "Success",
+        description: "User updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteUser = (id: string) => {
-    setAllUsers(prev => prev.filter(user => user.id !== id));
+  const deleteUser = async (id: string) => {
+    try {
+      await db.deleteUser(id);
+      setAllUsers(prev => prev.filter(user => user.id !== id));
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
   };
 
   // Brand Settings
-  const updateBrandSettings = (settingsData: Partial<BrandSettings>) => {
-    setBrandSettings(prev => ({ ...prev, ...settingsData }));
+  const updateBrandSettings = async (settingsData: Partial<BrandSettings>) => {
+    try {
+      const updatedSettings = { ...brandSettings, ...settingsData };
+      await db.updateBrandSettings(updatedSettings);
+      setBrandSettings(updatedSettings);
+      toast({
+        title: "Success",
+        description: "Brand settings updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating brand settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update brand settings",
+        variant: "destructive",
+      });
+    }
   };
 
   // Theme Settings
