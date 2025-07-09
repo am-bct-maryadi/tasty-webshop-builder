@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS branches (
 
 -- Categories table  
 CREATE TABLE IF NOT EXISTS categories (
-  id TEXT PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   count INTEGER DEFAULT 0,
-  branch_id TEXT NOT NULL,
+  branch_id UUID NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
