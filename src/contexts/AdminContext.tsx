@@ -853,8 +853,32 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   };
 
   // Theme Settings
-  const updateThemeSettings = (settingsData: Partial<ThemeSettings>) => {
-    setThemeSettings(prev => ({ ...prev, ...settingsData }));
+  const updateThemeSettings = async (settingsData: Partial<ThemeSettings>) => {
+    try {
+      const updatedSettings = { ...themeSettings, ...settingsData };
+      // Store theme settings in database as part of brand settings
+      await db.updateBrandSettings({ ...brandSettings, themeSettings: updatedSettings } as any);
+      setThemeSettings(updatedSettings);
+      
+      // Apply theme changes to document
+      document.documentElement.style.setProperty('--primary', settingsData.primaryColor || themeSettings.primaryColor);
+      document.documentElement.style.setProperty('--accent', settingsData.accentColor || themeSettings.accentColor);
+      if (settingsData.fontFamily) {
+        document.documentElement.style.setProperty('--font-family', settingsData.fontFamily);
+      }
+      
+      toast({
+        title: "Success",
+        description: "Theme settings updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating theme settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update theme settings",
+        variant: "destructive",
+      });
+    }
   };
 
   // Inventory Management
@@ -955,12 +979,18 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     setNotificationSettings(prev => ({ ...prev, ...settingsData }));
   };
 
-  // Update category counts based on products
+  // Update category counts based on products for specific branch
   const updateCategoryCount = () => {
-    setAllCategories(prev => prev.map(category => ({
-      ...category,
-      count: allProducts.filter(product => product.category === category.id && product.branchId === category.branchId).length
-    })));
+    setAllCategories(prev => prev.map(category => {
+      const categoryProducts = allProducts.filter(product => 
+        product.category === category.name.toLowerCase().replace(/\s+/g, '-') && 
+        product.branchId === category.branchId
+      );
+      return {
+        ...category,
+        count: categoryProducts.length
+      };
+    }));
   };
 
   const value: AdminContextType = {

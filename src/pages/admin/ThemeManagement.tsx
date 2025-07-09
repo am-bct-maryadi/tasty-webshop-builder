@@ -37,16 +37,15 @@ export const ThemeManagement: React.FC = () => {
     },
   });
 
-  const onSubmit = (data: ThemeFormData) => {
+  const onSubmit = async (data: ThemeFormData) => {
     try {
-      updateThemeSettings(data);
-      toast({ title: "Theme settings updated successfully" });
+      await updateThemeSettings(data);
     } catch (error) {
-      toast({ title: "Error", description: "Failed to update theme settings", variant: "destructive" });
+      // Error handling is done in the context
     }
   };
 
-  const resetToDefault = () => {
+  const resetToDefault = async () => {
     const defaultSettings = {
       primaryColor: '#2563eb',
       accentColor: '#7c3aed',
@@ -57,8 +56,7 @@ export const ThemeManagement: React.FC = () => {
       compactMode: false,
     };
     form.reset(defaultSettings);
-    updateThemeSettings(defaultSettings);
-    toast({ title: "Theme reset to default settings" });
+    await updateThemeSettings(defaultSettings);
   };
 
   const colorPresets = [

@@ -175,15 +175,23 @@ export const BrandManagement: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    <FormField
+                     <FormField
                       control={form.control}
                       name="copyrightText"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Copyright Text</FormLabel>
                           <FormControl>
-                            <Input placeholder="© 2024 FoodieApp. All rights reserved." {...field} />
+                            <Input 
+                              placeholder="© 2024 FoodieApp. All rights reserved." 
+                              {...field} 
+                              disabled 
+                              className="bg-muted cursor-not-allowed"
+                            />
                           </FormControl>
+                          <div className="text-xs text-muted-foreground">
+                            Copyright text can only be updated in the database
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

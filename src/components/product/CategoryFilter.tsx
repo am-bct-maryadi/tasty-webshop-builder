@@ -21,6 +21,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategory,
   onCategoryChange
 }) => {
+  // Calculate proper total count for the "All" category
   const allCategory = {
     id: 'all',
     name: 'All',
