@@ -29,8 +29,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onViewDetails 
 }) => {
   return (
-    <Card className="food-card overflow-hidden group cursor-pointer bg-white border-0 shadow-soft hover:shadow-strong">
-      <div className="relative" onClick={() => onViewDetails?.(product)}>
+    <Card className="food-card overflow-hidden group cursor-pointer bg-white border-0 shadow-soft hover:shadow-strong min-h-[480px] flex flex-col">
+      <div className="relative flex-shrink-0" onClick={() => onViewDetails?.(product)}>
         <div className="aspect-[4/3] overflow-hidden">
           <img
             src={product.image}
@@ -81,26 +81,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      <div className="p-5">
-        <div className="mb-3">
-          <h3 className="font-bold text-lg leading-tight mb-2 group-hover:text-primary transition-smooth">
+      <div className="p-6 flex-1 flex flex-col justify-between">
+        <div className="mb-4">
+          <h3 className="font-bold text-xl leading-tight mb-3 text-foreground group-hover:text-primary transition-smooth line-clamp-2">
             {product.name}
           </h3>
           
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          <p className="text-base text-muted-foreground line-clamp-3 leading-relaxed mb-4">
             {product.description}
           </p>
         </div>
 
         {/* Rating and Time Info */}
-        <div className="flex items-center justify-between mb-4 text-sm">
+        <div className="flex items-center justify-between mb-5 text-sm">
           <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1 bg-warning/10 px-2 py-1 rounded-full">
+            <div className="flex items-center gap-1 bg-warning/10 px-3 py-2 rounded-full">
               <Star className="h-4 w-4 fill-current text-warning" />
-              <span className="font-medium">{product.rating}</span>
+              <span className="font-semibold text-foreground">{product.rating}</span>
+              <span className="text-muted-foreground ml-1">rating</span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span className="font-medium">{product.prepTime} min</span>
           </div>
@@ -110,7 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <Button
           variant={product.isAvailable ? "gradient" : "secondary"}
           size="lg"
-          className="w-full font-semibold text-base h-12 transition-bounce hover:scale-105 active:scale-95"
+          className="w-full font-bold text-lg h-14 transition-bounce hover:scale-105 active:scale-95 shadow-medium"
           onClick={() => onAddToCart?.(product)}
           disabled={!product.isAvailable}
         >
