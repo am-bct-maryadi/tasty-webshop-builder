@@ -72,11 +72,11 @@ const AdminPanel: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
-        <div className="flex h-16 items-center px-6">
-          <div className="flex items-center gap-4">
+        <div className="flex h-16 items-center px-4 md:px-6">
+          <div className="flex items-center gap-2 md:gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Package className="h-6 w-6 text-primary" />
-              <span className="font-bold text-lg">FoodieApp Admin</span>
+              <span className="font-bold text-base md:text-lg">FoodieApp Admin</span>
             </div>
             
             {currentPage !== 'dashboard' && (
@@ -84,10 +84,11 @@ const AdminPanel: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setCurrentPage('dashboard')}
-                className="gap-2"
+                className="gap-2 text-xs md:text-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
+                <span className="hidden sm:inline">Back to Dashboard</span>
+                <span className="sm:hidden">Back</span>
               </Button>
             )}
           </div>
@@ -120,7 +121,7 @@ const AdminPanel: React.FC = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">
           {renderPage()}
         </main>
       </div>

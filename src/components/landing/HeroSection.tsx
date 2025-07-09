@@ -17,9 +17,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
   if (selectedBranch) {
     const selectedBranchData = branches.find(b => b.id === selectedBranch);
     return (
-      <div className="bg-gradient-hero text-white py-6">
-        <div className="w-full px-6">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
+      <div className="bg-gradient-hero text-white py-4 md:py-6">
+        <div className="w-full px-4 md:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-4xl mx-auto">
             <div>
               <h2 className="text-xl font-semibold mb-2">
                 🎉 Welcome to {selectedBranchData?.name}!
@@ -32,7 +32,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
               variant="secondary"
               size="sm"
               onClick={() => onSelectBranch?.('')}
-              className="bg-white/20 text-white border-white/30 hover:bg-white/30"
+              className="bg-white/20 text-white border-white/30 hover:bg-white/30 w-full sm:w-auto"
             >
               Change Branch
             </Button>
@@ -46,8 +46,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
     <div className="relative">
       <HeroBanner />
       
-      <div className="bg-background py-8">
-        <div className="w-full px-6">
+      <div className="bg-background py-6 md:py-8">
+        <div className="w-full px-4 md:px-6">
           {/* Branch Selection */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-center mb-4 text-foreground">
@@ -61,9 +61,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
                   className="p-4 bg-card border hover:shadow-medium transition-smooth animate-scale-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 w-full sm:w-auto">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                         <h3 className="font-semibold text-foreground">{branch.name}</h3>
                         {branch.isOpen ? (
                           <span className="text-xs bg-success/20 text-success-foreground px-2 py-1 rounded-full">
@@ -87,7 +87,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, select
                       size="sm"
                       disabled={!branch.isOpen}
                       onClick={() => onSelectBranch?.(branch.id)}
-                      className="ml-4"
+                      className="w-full sm:w-auto sm:ml-4"
                     >
                       {branch.isOpen ? 'Select' : 'Closed'}
                     </Button>

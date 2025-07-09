@@ -31,13 +31,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     <>
       {/* Mobile Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="w-full flex h-14 items-center justify-center">
+        <div className="w-full flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <UtensilsCrossed className="h-6 w-6 text-primary" />
             <span className="font-bold text-lg">FoodieApp</span>
           </div>
           
-          <div className="absolute right-4 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
