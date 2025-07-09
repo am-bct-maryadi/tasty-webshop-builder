@@ -9,6 +9,7 @@ import { SettingsManagement } from './admin/SettingsManagement';
 import { AnalyticsManagement } from './admin/AnalyticsManagement';
 import { InventoryManagement } from './admin/InventoryManagement';
 import { NotificationManagement } from './admin/NotificationManagement';
+import { BulkDataManagement } from './admin/BulkDataManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Package, Tags, MapPin, Settings } from 'lucide-react';
@@ -28,6 +29,7 @@ const AdminPanel: React.FC = () => {
     { id: 'categories', label: 'Categories', icon: Tags },
     { id: 'branches', label: 'Branches', icon: MapPin },
     { id: 'promos', label: 'Promo Codes', icon: Tags },
+    { id: 'bulk', label: 'Bulk Import', icon: Package },
     { id: 'analytics', label: 'Analytics', icon: Package },
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'notifications', label: 'Notifications', icon: Package },
@@ -46,6 +48,8 @@ const AdminPanel: React.FC = () => {
         return <BranchesManagement />;
       case 'promos':
         return <PromosManagement />;
+      case 'bulk':
+        return <BulkDataManagement />;
       case 'analytics':
         return <AnalyticsManagement />;
       case 'inventory':
