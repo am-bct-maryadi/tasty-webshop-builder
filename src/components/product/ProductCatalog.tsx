@@ -88,7 +88,11 @@ const mockCategories: Category[] = [
   { id: 'beverages', name: 'Beverages', count: 2 }
 ];
 
-export const ProductCatalog: React.FC = () => {
+interface ProductCatalogProps {
+  promoCode?: string;
+}
+
+export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -232,6 +236,7 @@ export const ProductCatalog: React.FC = () => {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
+        promoCode={promoCode}
       />
 
       {/* Product Details Modal */}

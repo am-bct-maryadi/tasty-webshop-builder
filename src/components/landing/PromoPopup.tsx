@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { X, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface PromoPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  onPromoClaimed: (promoCode: string) => void;
 }
 
-export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose }) => {
+export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose, onPromoClaimed }) => {
+  const handleClaimOffer = () => {
+    onPromoClaimed('WELCOME20');
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md mx-auto bg-gradient-hero border-0 text-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-2xl font-bold">
-              <Gift className="h-6 w-6" />
-              Special Offer!
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+          <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
+            <Gift className="h-6 w-6" />
+            Special Offer!
           </DialogTitle>
         </DialogHeader>
         
@@ -43,7 +39,7 @@ export const PromoPopup: React.FC<PromoPopupProps> = ({ isOpen, onClose }) => {
             <Button
               variant="secondary"
               className="flex-1 bg-white text-primary hover:bg-white/90"
-              onClick={onClose}
+              onClick={handleClaimOffer}
             >
               Claim Offer
             </Button>

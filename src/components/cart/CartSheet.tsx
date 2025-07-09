@@ -19,13 +19,15 @@ interface CartSheetProps {
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemoveItem: (productId: string) => void;
   onClearCart: () => void;
+  promoCode?: string;
 }
 
 export const CartSheet: React.FC<CartSheetProps> = ({
   items,
   onUpdateQuantity,
   onRemoveItem,
-  onClearCart
+  onClearCart,
+  promoCode: externalPromoCode
 }) => {
   const { toast } = useToast();
   const [customerInfo, setCustomerInfo] = React.useState({
@@ -33,9 +35,30 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     phone: '',
     notes: ''
   });
+  const [promoCode, setPromoCode] = React.useState('');
 
+  // Auto-fill promo code when claimed from popup
+  React.useEffect(() => {
+    if (externalPromoCode) {
+      setPromoCode(externalPromoCode);
+      toast({
+        title: "Promo Applied!",
+        description: `${externalPromoCode} has been applied to your cart`,
+      });
+    }
+  }, [externalPromoCode, toast]);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Calculate discount
+  const getDiscount = () => {
+    if (promoCode === 'WELCOME20') return subtotal * 0.2;
+    if (promoCode === 'SAVE10') return subtotal * 0.1;
+    return 0;
+  };
+  
+  const discount = getDiscount();
+  const totalPrice = subtotal - discount;
 
   const handleWhatsAppOrder = () => {
     if (!customerInfo.name || !customerInfo.phone) {
@@ -54,7 +77,9 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       items.map(item => 
         `• ${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
       ).join('\n') +
-      `\n\n💰 *Total: $${totalPrice.toFixed(2)}*` +
+      `\n\n💰 *Subtotal: $${subtotal.toFixed(2)}*` +
+      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -$${discount.toFixed(2)}*` : '') +
+      `\n💸 *Total: $${totalPrice.toFixed(2)}*` +
       (customerInfo.notes ? `\n\n📝 *Notes:* ${customerInfo.notes}` : '') +
       `\n\n🕒 Order placed at: ${new Date().toLocaleString()}`;
 
@@ -176,12 +201,61 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                 </div>
               </div>
 
+              {/* Promo Code */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Promo Code</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter promo code"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (promoCode && (promoCode === 'WELCOME20' || promoCode === 'SAVE10')) {
+                        toast({
+                          title: "Promo Applied!",
+                          description: `${promoCode} discount applied successfully`,
+                        });
+                      } else if (promoCode) {
+                        toast({
+                          title: "Invalid Code",
+                          description: "Please check your promo code and try again",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
+                {discount > 0 && (
+                  <p className="text-sm text-success">
+                    ✅ {promoCode} applied - You save ${discount.toFixed(2)}!
+                  </p>
+                )}
+              </div>
+
               <Separator />
               
               {/* Total */}
-              <div className="flex justify-between items-center font-semibold text-lg">
-                <span>Total:</span>
-                <span className="text-primary">${totalPrice.toFixed(2)}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span>Subtotal:</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between items-center text-success">
+                    <span>Discount ({promoCode}):</span>
+                    <span>-${discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <Separator />
+                <div className="flex justify-between items-center font-semibold text-lg">
+                  <span>Total:</span>
+                  <span className="text-primary">${totalPrice.toFixed(2)}</span>
+                </div>
               </div>
 
               {/* Action Buttons */}

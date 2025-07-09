@@ -10,6 +10,7 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [showPromoPopup, setShowPromoPopup] = useState(false);
+  const [claimedPromoCode, setClaimedPromoCode] = useState<string>('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -30,6 +31,14 @@ const Index = () => {
     toast({
       title: "Branch Selected",
       description: "Great! You can now browse our menu and place orders.",
+    });
+  };
+
+  const handlePromoClaimed = (promoCode: string) => {
+    setClaimedPromoCode(promoCode);
+    toast({
+      title: "Promo Claimed!",
+      description: `${promoCode} will be applied to your cart automatically`,
     });
   };
 
@@ -54,12 +63,13 @@ const Index = () => {
             onSelectBranch={handleBranchSelection} 
             selectedBranch={selectedBranch}
           />
-          {selectedBranch && <ProductCatalog />}
+          {selectedBranch && <ProductCatalog promoCode={claimedPromoCode} />}
         </main>
         
         <PromoPopup 
           isOpen={showPromoPopup} 
-          onClose={() => setShowPromoPopup(false)} 
+          onClose={() => setShowPromoPopup(false)}
+          onPromoClaimed={handlePromoClaimed}
         />
       </div>
     </ThemeProvider>
