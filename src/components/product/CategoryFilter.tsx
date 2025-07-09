@@ -29,33 +29,37 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const allCategories = [allCategory, ...categories];
 
   return (
-    <div className="w-full">
-      <ScrollArea className="w-full">
-        <div className="flex gap-2 p-4 pb-0">
-          {allCategories.map((category) => {
-            const isSelected = selectedCategory === category.id;
-            
-            return (
-              <Button
-                key={category.id}
-                variant={isSelected ? "gradient" : "outline"}
-                size="sm"
-                className={`whitespace-nowrap transition-bounce ${
-                  isSelected ? "shadow-medium" : "hover:bg-accent"
-                }`}
-                onClick={() => onCategoryChange(category.id)}
-              >
-                <span className="font-medium">{category.name}</span>
-                <span className={`ml-1 text-xs ${
-                  isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
-                }`}>
-                  ({category.count})
-                </span>
-              </Button>
-            );
-          })}
-        </div>
-      </ScrollArea>
+    <div className="w-full bg-muted/30 border-y">
+      <div className="w-full px-4 md:px-8 lg:px-12">
+        <ScrollArea className="w-full">
+          <div className="flex justify-center py-4">
+            <div className="flex gap-3 flex-wrap justify-center max-w-4xl">
+              {allCategories.map((category) => {
+                const isSelected = selectedCategory === category.id;
+                
+                return (
+                  <Button
+                    key={category.id}
+                    variant={isSelected ? "gradient" : "outline"}
+                    size="sm"
+                    className={`whitespace-nowrap transition-bounce px-6 py-2 font-medium ${
+                      isSelected ? "shadow-medium scale-105" : "hover:bg-accent hover:scale-105"
+                    }`}
+                    onClick={() => onCategoryChange(category.id)}
+                  >
+                    <span className="font-semibold">{category.name}</span>
+                    <span className={`ml-2 text-xs ${
+                      isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
+                    }`}>
+                      ({category.count})
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 };

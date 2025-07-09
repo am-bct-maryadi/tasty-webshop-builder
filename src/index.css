@@ -209,9 +209,17 @@
   .mobile-container {
     @apply max-w-md mx-auto px-4 w-full;
   }
+
+  /* === RESPONSIVE GRID === */
+  .responsive-grid {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
   
-  .mobile-grid {
-    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3;
+  @media (max-width: 640px) {
+    .responsive-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* === BUTTON ANIMATIONS === */

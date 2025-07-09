@@ -164,8 +164,8 @@ export const ProductCatalog: React.FC = () => {
   return (
     <div className="w-full">
       {/* Search Bar */}
-      <div className="mobile-container py-4">
-        <div className="relative">
+      <div className="w-full px-4 md:px-8 lg:px-12 py-4">
+        <div className="max-w-md mx-auto relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search for food, drinks..."
@@ -184,7 +184,7 @@ export const ProductCatalog: React.FC = () => {
       />
 
       {/* Products Grid */}
-      <div className="mobile-container py-6">
+      <div className="w-full px-4 md:px-8 lg:px-12 py-8">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-muted-foreground">
@@ -194,30 +194,30 @@ export const ProductCatalog: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Our Menu</h2>
-              <p className="text-muted-foreground">Delicious food made fresh daily</p>
+              <h2 className="text-3xl font-bold mb-3">Our Menu</h2>
+              <p className="text-lg text-muted-foreground">Delicious food made fresh daily</p>
             </div>
-            <div className="mobile-grid">
-            {filteredProducts.map((product, index) => (
-              <div
-                key={product.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <ProductCard
-                  product={product}
-                  onAddToCart={handleAddToCart}
-                  onViewDetails={(product) => {
-                    toast({
-                      title: "Product Details",
-                      description: `Viewing details for ${product.name}`,
-                    });
-                  }}
-                />
-              </div>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+              {filteredProducts.map((product, index) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in w-full"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <ProductCard
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onViewDetails={(product) => {
+                      toast({
+                        title: "Product Details",
+                        description: `Viewing details for ${product.name}`,
+                      });
+                    }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
