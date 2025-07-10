@@ -79,7 +79,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       ).join('\n') +
       `\n\n💰 *Subtotal: Rp. ${subtotal}*` +
       (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -Rp. ${discount.toFixed(2)}*` : '') +
-      `\n💸 *Total: Rp. ${totalPrice}*` +
+      `\n💸 *Total: Rp. ${totalPrice.toFixed(2)}*` +
       (customerInfo.notes ? `\n\n📝 *Notes:* ${customerInfo.notes}` : '') +
       `\n\n🕒 Order placed at: ${new Date().toLocaleString()}`;
 
@@ -243,7 +243,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span>Subtotal:</span>
-                  <span>Rp. {subtotal}</span>
+                  <span>Rp. {subtotal.toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-success">
@@ -254,7 +254,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                 <Separator />
                 <div className="flex justify-between items-center font-semibold text-lg">
                   <span>Total:</span>
-                  <span className="text-primary">Rp. {totalPrice}</span>
+                  <span className="text-primary">Rp. {totalPrice.toFixed(2)}</span>
                 </div>
               </div>
 
