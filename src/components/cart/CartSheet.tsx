@@ -248,7 +248,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-success">
                     <span>Discount ({promoCode}):</span>
-                    <span>-Rp. {discount}</span>
+                    <span>-Rp. {discount.toFixed(2)}</span>
                   </div>
                 )}
                 <Separator />
