@@ -33,6 +33,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
   const [customerInfo, setCustomerInfo] = React.useState({
     name: '',
     phone: '',
+    address: '',
     notes: ''
   });
   const [promoCode, setPromoCode] = React.useState('');
@@ -61,10 +62,10 @@ export const CartSheet: React.FC<CartSheetProps> = ({
   const totalPrice = subtotal - discount;
 
   const handleWhatsAppOrder = () => {
-    if (!customerInfo.name || !customerInfo.phone) {
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
       toast({
         title: "Missing Information",
-        description: "Please fill in your name and phone number",
+        description: "Please fill in your name, phone number, and delivery address",
         variant: "destructive",
       });
       return;
@@ -72,7 +73,8 @@ export const CartSheet: React.FC<CartSheetProps> = ({
 
     // Format order for WhatsApp
     const orderText = `🍽️ *New Order from ${customerInfo.name}*\n\n` +
-      `📱 Phone: ${customerInfo.phone}\n\n` +
+      `📱 Phone: ${customerInfo.phone}\n` +
+      `📍 Address: ${customerInfo.address}\n\n` +
       `📋 *Order Details:*\n` +
       items.map(item => 
         `• ${item.name} x${item.quantity} - Rp. ${(item.price * item.quantity).toFixed(2)}`
@@ -191,6 +193,12 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                     placeholder="Phone number *"
                     value={customerInfo.phone}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                  />
+                  <Textarea
+                    placeholder="Delivery address *"
+                    value={customerInfo.address}
+                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, address: e.target.value }))}
+                    className="min-h-[60px]"
                   />
                   <Textarea
                     placeholder="Special requests or notes (optional)"
