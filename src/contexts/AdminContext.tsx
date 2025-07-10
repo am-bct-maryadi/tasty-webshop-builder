@@ -8,6 +8,7 @@ interface Branch {
   id: string;
   name: string;
   address: string;
+  whatsappNumber?: string;
   isOpen: boolean;
 }
 
@@ -275,18 +276,21 @@ const initialBranches: Branch[] = [
     id: '1',
     name: 'Downtown Branch',
     address: '123 Main Street, Downtown',
+    whatsappNumber: '628158882505',
     isOpen: true
   },
   {
     id: '2', 
     name: 'Mall Branch',
     address: '456 Shopping Center, North Mall',
+    whatsappNumber: '628158882506',
     isOpen: true
   },
   {
     id: '3',
     name: 'University Branch',
     address: '789 Campus Drive, University District',
+    whatsappNumber: '628158882507',
     isOpen: false
   }
 ];

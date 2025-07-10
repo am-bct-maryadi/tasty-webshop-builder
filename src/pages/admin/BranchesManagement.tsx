@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 interface BranchFormData {
   name: string;
   address: string;
+  whatsappNumber: string;
   isOpen: boolean;
 }
 
@@ -27,6 +28,7 @@ export const BranchesManagement: React.FC = () => {
     defaultValues: {
       name: '',
       address: '',
+      whatsappNumber: '',
       isOpen: true,
     },
   });
@@ -53,6 +55,7 @@ export const BranchesManagement: React.FC = () => {
     form.reset({
       name: branch.name,
       address: branch.address,
+      whatsappNumber: branch.whatsappNumber || '',
       isOpen: branch.isOpen,
     });
     setIsDialogOpen(true);
@@ -72,6 +75,7 @@ export const BranchesManagement: React.FC = () => {
     form.reset({
       name: '',
       address: '',
+      whatsappNumber: '',
       isOpen: true,
     });
     setIsDialogOpen(true);
@@ -127,27 +131,41 @@ export const BranchesManagement: React.FC = () => {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-                <FormField
-                  control={form.control}
-                  name="isOpen"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Currently Open</FormLabel>
-                        <div className="text-sm text-muted-foreground">
-                          Set whether this branch is currently accepting orders
-                        </div>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                 />
+                 <FormField
+                   control={form.control}
+                   name="whatsappNumber"
+                   rules={{ required: "WhatsApp number is required" }}
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>WhatsApp Number</FormLabel>
+                       <FormControl>
+                         <Input placeholder="628123456789" {...field} />
+                       </FormControl>
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                 />
+                 <FormField
+                   control={form.control}
+                   name="isOpen"
+                   render={({ field }) => (
+                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                       <div className="space-y-0.5">
+                         <FormLabel className="text-base">Currently Open</FormLabel>
+                         <div className="text-sm text-muted-foreground">
+                           Set whether this branch is currently accepting orders
+                         </div>
+                       </div>
+                       <FormControl>
+                         <Switch
+                           checked={field.value}
+                           onCheckedChange={field.onChange}
+                         />
+                       </FormControl>
+                     </FormItem>
+                   )}
+                 />
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
@@ -170,12 +188,13 @@ export const BranchesManagement: React.FC = () => {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
+               <TableRow>
+                 <TableHead>Name</TableHead>
+                 <TableHead>Address</TableHead>
+                 <TableHead>WhatsApp</TableHead>
+                 <TableHead>Status</TableHead>
+                 <TableHead className="text-right">Actions</TableHead>
+               </TableRow>
             </TableHeader>
             <TableBody>
               {branches.map((branch) => (
@@ -186,19 +205,22 @@ export const BranchesManagement: React.FC = () => {
                       {branch.name}
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {branch.address}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span className={`text-sm font-medium ${
-                        branch.isOpen ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {branch.isOpen ? 'Open' : 'Closed'}
-                      </span>
-                    </div>
-                  </TableCell>
+                   <TableCell className="text-muted-foreground">
+                     {branch.address}
+                   </TableCell>
+                   <TableCell className="text-muted-foreground">
+                     {branch.whatsappNumber || 'Not set'}
+                   </TableCell>
+                   <TableCell>
+                     <div className="flex items-center gap-2">
+                       <Clock className="h-4 w-4" />
+                       <span className={`text-sm font-medium ${
+                         branch.isOpen ? 'text-green-600' : 'text-red-600'
+                       }`}>
+                         {branch.isOpen ? 'Open' : 'Closed'}
+                       </span>
+                     </div>
+                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center gap-2 justify-end">
                       <Button
