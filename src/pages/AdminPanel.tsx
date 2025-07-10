@@ -7,6 +7,7 @@ import { CategoriesManagement } from './admin/CategoriesManagement';
 import { PromosManagement } from './admin/PromosManagement';
 import { SettingsManagement } from './admin/SettingsManagement';
 import { AnalyticsManagement } from './admin/AnalyticsManagement';
+import { OrdersManagement } from './admin/OrdersManagement';
 import { InventoryManagement } from './admin/InventoryManagement';
 import { NotificationManagement } from './admin/NotificationManagement';
 import { BulkDataManagement } from './admin/BulkDataManagement';
@@ -32,6 +33,7 @@ const AdminPanel: React.FC = () => {
     { id: 'products', label: 'Products', icon: Package },
     { id: 'categories', label: 'Categories', icon: Tags },
     { id: 'branches', label: 'Branches', icon: MapPin },
+    { id: 'orders', label: 'Orders', icon: Package },
     { id: 'promos', label: 'Promo Codes', icon: Tags },
     { id: 'bulk', label: 'Bulk Import', icon: Package },
     { id: 'analytics', label: 'Analytics', icon: Package },
@@ -51,6 +53,8 @@ const AdminPanel: React.FC = () => {
         return <CategoriesManagement />;
       case 'branches':
         return <BranchesManagement />;
+      case 'orders':
+        return <OrdersManagement />;
       case 'promos':
         return <PromosManagement />;
       case 'bulk':

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, MessageCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -61,7 +62,15 @@ export const CartSheet: React.FC<CartSheetProps> = ({
   const discount = getDiscount();
   const totalPrice = subtotal - discount;
 
-  const handleWhatsAppOrder = () => {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const handleWhatsAppOrder = async () => {
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
       toast({
         title: "Missing Information",
@@ -77,19 +86,63 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       `📍 Address: ${customerInfo.address}\n\n` +
       `📋 *Order Details:*\n` +
       items.map(item => 
-        `• ${item.name} x${item.quantity} - Rp. ${(item.price * item.quantity).toFixed(2)}`
+        `• ${item.name} x${item.quantity} - ${formatCurrency(item.price * item.quantity)}`
       ).join('\n') +
-      `\n\n💰 *Subtotal: Rp. ${subtotal}*` +
-      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -Rp. ${discount.toFixed(2)}*` : '') +
-      `\n💸 *Total: Rp. ${totalPrice.toFixed(2)}*` +
+      `\n\n💰 *Subtotal: ${formatCurrency(subtotal)}*` +
+      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -${formatCurrency(discount)}*` : '') +
+      `\n💸 *Total: ${formatCurrency(totalPrice)}*` +
       (customerInfo.notes ? `\n\n📝 *Notes:* ${customerInfo.notes}` : '') +
-      `\n\n🕒 Order placed at: ${new Date().toLocaleString()}`;
+      `\n\n🕒 Order placed at: ${new Date().toLocaleString('id-ID')}`;
 
-    // WhatsApp API URL (replace with your business number)
-    const whatsappNumber = "628158882505"; // Replace with actual business WhatsApp number
+    // Get WhatsApp number from brand settings based on current branch
+    let whatsappNumber = "628158882505"; // Default fallback number
+    try {
+      const { data: brandSettings } = await supabase
+        .from('brand_settings')
+        .select('whatsapp_number')
+        .single();
+      
+      if (brandSettings?.whatsapp_number) {
+        whatsappNumber = brandSettings.whatsapp_number;
+      }
+    } catch (error) {
+      console.log('Using default WhatsApp number');
+    }
+
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderText)}`;
     
+    // Save order to database
+    try {
+      const orderData = {
+        customer_name: customerInfo.name,
+        customer_phone: customerInfo.phone,
+        customer_address: customerInfo.address,
+        items: items.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        subtotal,
+        discount,
+        total: totalPrice,
+        status: 'pending' as const,
+        promo_code: promoCode || null,
+        notes: customerInfo.notes || null,
+        branch_id: 'current-branch-id' // Should come from context
+      };
+
+      await supabase.from('orders').insert(orderData);
+    } catch (error) {
+      console.error('Error saving order:', error);
+    }
+    
     window.open(whatsappUrl, '_blank');
+    
+    // Clear cart after successful order
+    onClearCart();
+    setCustomerInfo({ name: '', phone: '', address: '', notes: '' });
+    setPromoCode('');
     
     toast({
       title: "Order Sent!",
@@ -144,7 +197,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                   />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm">{item.name}</h4>
-                    <p className="text-primary font-semibold">Rp. {item.price}</p>
+                    <p className="text-primary font-semibold">{formatCurrency(item.price)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -240,7 +293,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                 </div>
                 {discount > 0 && (
                   <p className="text-sm text-success">
-                    ✅ {promoCode} applied - You save Rp. {discount.toFixed(2)}!
+                    ✅ {promoCode} applied - You save {formatCurrency(discount)}!
                   </p>
                 )}
               </div>
@@ -251,18 +304,18 @@ export const CartSheet: React.FC<CartSheetProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span>Subtotal:</span>
-                  <span>Rp. {subtotal.toFixed(2)}</span>
+                  <span>{formatCurrency(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-success">
                     <span>Discount ({promoCode}):</span>
-                    <span>-Rp. {discount.toFixed(2)}</span>
+                    <span>-{formatCurrency(discount)}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between items-center font-semibold text-lg">
                   <span>Total:</span>
-                  <span className="text-primary">Rp. {totalPrice.toFixed(2)}</span>
+                  <span className="text-primary">{formatCurrency(totalPrice)}</span>
                 </div>
               </div>
 

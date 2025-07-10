@@ -159,6 +159,54 @@ export interface Database {
           branch_id?: string;
         };
       };
+      orders: {
+        Row: {
+          id: string;
+          customer_name: string;
+          customer_phone: string;
+          customer_address: string;
+          items: any;
+          subtotal: number;
+          discount: number;
+          total: number;
+          status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+          promo_code?: string;
+          notes?: string;
+          branch_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_name: string;
+          customer_phone: string;
+          customer_address: string;
+          items: any;
+          subtotal: number;
+          discount?: number;
+          total: number;
+          status?: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+          promo_code?: string;
+          notes?: string;
+          branch_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          customer_name?: string;
+          customer_phone?: string;
+          customer_address?: string;
+          items?: any;
+          subtotal?: number;
+          discount?: number;
+          total?: number;
+          status?: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+          promo_code?: string;
+          notes?: string;
+          branch_id?: string;
+          updated_at?: string;
+        };
+      };
       brand_settings: {
         Row: {
           id: string;
@@ -170,6 +218,7 @@ export interface Database {
           email: string;
           phone: string;
           address: string;
+          whatsapp_number: string;
           social_media: any;
           footer_text: string;
           copyright_text: string;
@@ -185,6 +234,7 @@ export interface Database {
           email?: string;
           phone?: string;
           address?: string;
+          whatsapp_number?: string;
           social_media?: any;
           footer_text?: string;
           copyright_text?: string;
@@ -199,6 +249,7 @@ export interface Database {
           email?: string;
           phone?: string;
           address?: string;
+          whatsapp_number?: string;
           social_media?: any;
           footer_text?: string;
           copyright_text?: string;
