@@ -14,6 +14,7 @@ CREATE TABLE branches (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   address TEXT NOT NULL,
+  whatsapp_number TEXT,
   is_open BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -88,10 +89,10 @@ CREATE TABLE brand_settings (
 );
 
 -- Insert initial data (without explicit IDs to let UUID auto-generate)
-INSERT INTO branches (name, address, is_open) VALUES 
-  ('Downtown Branch', '123 Main Street, Downtown', true),
-  ('Mall Branch', '456 Shopping Center, North Mall', true),
-  ('University Branch', '789 Campus Drive, University District', false);
+INSERT INTO branches (name, address, whatsapp_number, is_open) VALUES 
+  ('Downtown Branch', '123 Main Street, Downtown', '628158882505', true),
+  ('Mall Branch', '456 Shopping Center, North Mall', '628158882506', true),
+  ('University Branch', '789 Campus Drive, University District', '628158882507', false);
 
 -- Get branch IDs for reference in other tables
 DO $$
