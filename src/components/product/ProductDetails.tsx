@@ -3,6 +3,7 @@ import { X, Clock, Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 import type { Product } from './ProductCard';
 
 interface ProductDetailsProps {
@@ -62,7 +63,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-primary">
-                  ${product.price}
+                  {formatCurrency(product.price)}
                 </p>
               </div>
             </div>
@@ -107,7 +108,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                 }}
                 disabled={!product.isAvailable}
               >
-                {product.isAvailable ? `Add to Cart • Rp. ${product.price}` : "Currently Unavailable"}
+                {product.isAvailable ? `Add to Cart • ${formatCurrency(product.price)}` : "Currently Unavailable"}
               </Button>
             </div>
           </div>

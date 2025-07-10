@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/utils';
 import type { Product } from '../product/ProductCard';
 
 export interface CartItem extends Product {
@@ -62,13 +63,6 @@ export const CartSheet: React.FC<CartSheetProps> = ({
   const discount = getDiscount();
   const totalPrice = subtotal - discount;
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const handleWhatsAppOrder = async () => {
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {

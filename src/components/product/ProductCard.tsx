@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 
 export interface Product {
   id: string;
@@ -61,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Price Badge */}
         <div className="absolute top-3 right-3">
           <Badge className="bg-primary text-primary-foreground text-sm font-bold px-3 py-1 shadow-medium">
-            ${product.price}
+            {formatCurrency(product.price)}
           </Badge>
         </div>
 
@@ -105,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {product.isAvailable ? (
               <>
                 <Plus className="h-5 w-5 mr-2" />
-                Add to Cart • Rp. {product.price}
+                Add to Cart • {formatCurrency(product.price)}
               </>
             ) : (
               "Currently Unavailable"
