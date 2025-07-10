@@ -78,7 +78,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
         `• ${item.name} x${item.quantity} - Rp. ${(item.price * item.quantity).toFixed(2)}`
       ).join('\n') +
       `\n\n💰 *Subtotal: Rp. ${subtotal}*` +
-      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -Rp. ${discount}*` : '') +
+      (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -Rp. ${discount.toFixed(2)}*` : '') +
       `\n💸 *Total: Rp. ${totalPrice}*` +
       (customerInfo.notes ? `\n\n📝 *Notes:* ${customerInfo.notes}` : '') +
       `\n\n🕒 Order placed at: ${new Date().toLocaleString()}`;
@@ -232,7 +232,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                 </div>
                 {discount > 0 && (
                   <p className="text-sm text-success">
-                    ✅ {promoCode} applied - You save ${discount.toFixed(2)}!
+                    ✅ {promoCode} applied - You save Rp. {discount.toFixed(2)}!
                   </p>
                 )}
               </div>
