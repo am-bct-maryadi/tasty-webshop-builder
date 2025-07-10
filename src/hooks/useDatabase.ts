@@ -7,6 +7,7 @@ interface Branch {
   id: string;
   name: string;
   address: string;
+  whatsappNumber?: string;
   isOpen: boolean;
 }
 
@@ -82,12 +83,14 @@ const dbToBranch = (dbBranch: any): Branch => ({
   id: dbBranch.id,
   name: dbBranch.name,
   address: dbBranch.address,
+  whatsappNumber: dbBranch.whatsapp_number,
   isOpen: dbBranch.is_open,
 });
 
 const branchToDb = (branch: Omit<Branch, 'id'>) => ({
   name: branch.name,
   address: branch.address,
+  whatsapp_number: branch.whatsappNumber,
   is_open: branch.isOpen,
 });
 
