@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {product.isAvailable ? (
               <>
                 <Plus className="h-5 w-5 mr-2" />
-                Add to Cart • ${product.price}
+                Add to Cart • Rp. {product.price}
               </>
             ) : (
               "Currently Unavailable"
