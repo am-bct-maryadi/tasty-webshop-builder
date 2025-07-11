@@ -12,7 +12,7 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectBranch, selectedBranch }) => {
   // Get branches from AdminContext instead of hardcoded data
-  const { branches } = useAdmin();
+  const { branches, brandSettings, themeSettings } = useAdmin();
 
   if (selectedBranch) {
     const selectedBranchData = branches.find(b => b.id === selectedBranch);

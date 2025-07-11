@@ -28,7 +28,7 @@ const bannerSlides = [
 ];
 
 export const HeroBanner: React.FC = () => {
-  const { brandSettings } = useAdmin();
+  const { brandSettings, themeSettings } = useAdmin();
 
   return (
     <div className="relative w-full">
@@ -36,7 +36,13 @@ export const HeroBanner: React.FC = () => {
         <CarouselContent>
           {bannerSlides.map((slide) => (
             <CarouselItem key={slide.id}>
-              <div className="relative min-h-[50vh] bg-gradient-hero text-white overflow-hidden">
+              <div 
+                className="relative min-h-[50vh] text-white overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${themeSettings.primaryColor} 0%, ${themeSettings.accentColor} 100%)`,
+                  fontFamily: themeSettings.fontFamily === 'inter' ? 'Inter, sans-serif' : themeSettings.fontFamily === 'roboto' ? 'Roboto, sans-serif' : 'Poppins, sans-serif'
+                }}
+              >
                 {/* Background Image */}
                 <div 
                   className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -71,10 +77,10 @@ export const HeroBanner: React.FC = () => {
                       </div>
                     )}
                     <h1 className="text-3xl md:text-5xl font-bold mb-4 animate-fade-in">
-                      {slide.title}
+                      {brandSettings.companyName || slide.title}
                     </h1>
                     <p className="text-lg md:text-xl opacity-90 mb-6 animate-fade-in">
-                      {slide.subtitle}
+                      {brandSettings.tagline || slide.subtitle}
                     </p>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ import { BranchSelector } from '@/components/admin/BranchSelector';
 interface UserFormData {
   username: string;
   email: string;
+  password: string;
   role: 'admin' | 'manager' | 'staff';
   isActive: boolean;
   branchId: string;
@@ -36,6 +37,7 @@ export const UserManagement: React.FC = () => {
     defaultValues: {
       username: '',
       email: '',
+      password: '',
       role: 'staff',
       isActive: true,
       branchId: selectedAdminBranch || 'all',
@@ -64,6 +66,7 @@ export const UserManagement: React.FC = () => {
     form.reset({
       username: user.username,
       email: user.email,
+      password: '', // Don't show existing password
       role: user.role,
       isActive: user.isActive,
       branchId: user.branchId,
@@ -85,6 +88,7 @@ export const UserManagement: React.FC = () => {
     form.reset({
       username: '',
       email: '',
+      password: '',
       role: 'staff',
       isActive: true,
       branchId: selectedAdminBranch || 'all',
@@ -156,6 +160,26 @@ export const UserManagement: React.FC = () => {
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input type="email" placeholder="john@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    rules={{ 
+                      required: editingUser ? false : "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters"
+                      }
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password {editingUser && "(leave blank to keep current)"}</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder={editingUser ? "••••••••" : "password123"} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

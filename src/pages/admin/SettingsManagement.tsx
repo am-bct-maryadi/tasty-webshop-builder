@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserManagement } from './UserManagement';
 import { ThemeManagement } from './ThemeManagement';
 import { BrandManagement } from './BrandManagement';
+import { BannerManagement } from './BannerManagement';
 
 export const SettingsManagement: React.FC = () => {
   return (
@@ -15,7 +16,7 @@ export const SettingsManagement: React.FC = () => {
       </div>
 
       <Tabs defaultValue="brand" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="brand" className="gap-2">
             <User className="h-4 w-4" />
             Brand & Company
@@ -27,6 +28,10 @@ export const SettingsManagement: React.FC = () => {
           <TabsTrigger value="theme" className="gap-2">
             <Palette className="h-4 w-4" />
             Theme Settings
+          </TabsTrigger>
+          <TabsTrigger value="banners" className="gap-2">
+            <Shield className="h-4 w-4" />
+            Banner Management
           </TabsTrigger>
         </TabsList>
         
@@ -40,6 +45,10 @@ export const SettingsManagement: React.FC = () => {
         
         <TabsContent value="theme">
           <ThemeManagement />
+        </TabsContent>
+        
+        <TabsContent value="banners">
+          <BannerManagement />
         </TabsContent>
       </Tabs>
     </div>
