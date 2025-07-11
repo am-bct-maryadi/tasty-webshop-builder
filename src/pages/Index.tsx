@@ -26,12 +26,14 @@ const Index = () => {
     }
   }, [selectedBranch]);
 
-  const handleBranchSelection = (branchId: string) => {
+  const handleBranchSelection = (branchId: string | null) => {
     if (!branchId) {
       setSelectedBranch(null);
+      localStorage.removeItem('selectedBranch');
       return;
     }
     setSelectedBranch(branchId);
+    localStorage.setItem('selectedBranch', branchId);
     toast({
       title: "Branch Selected",
       description: "Great! You can now browse our menu and place orders.",

@@ -357,11 +357,11 @@ export const BrandManagement: React.FC = () => {
               <CardDescription>Upload or set your company logo</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {brandSettings.logo && (
+              {(brandSettings.logo || form.watch('logo')) && (
                 <div className="flex items-center justify-center p-6 border rounded-lg bg-muted/30">
                   <img 
-                    src={brandSettings.logo} 
-                    alt="Company Logo" 
+                    src={form.watch('logo') || brandSettings.logo} 
+                    alt="Company Logo Preview" 
                     className="max-h-32 max-w-64 object-contain"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';

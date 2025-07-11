@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useAdmin } from '@/contexts/AdminContext';
 import { formatCurrency } from '@/lib/utils';
 import type { Product } from '../product/ProductCard';
 
@@ -32,6 +33,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
   promoCode: externalPromoCode
 }) => {
   const { toast } = useToast();
+  const { promos } = useAdmin();
   const [customerInfo, setCustomerInfo] = React.useState({
     name: '',
     phone: '',
@@ -50,19 +52,40 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       });
     }
   }, [externalPromoCode, toast]);
+
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
-  // Calculate discount
-  const getDiscount = () => {
-    if (promoCode === 'WELCOME20') return subtotal * 0.2;
-    if (promoCode === 'SAVE10') return subtotal * 0.1;
+  const calculateDiscount = (subtotal: number): number => {
+    if (!promoCode) return 0;
+    
+    // Get selected branch and find promo
+    const selectedBranchId = localStorage.getItem('selectedBranch');
+    if (!selectedBranchId) return 0;
+    
+    try {
+      const validPromo = promos.find(p => 
+        p.code === promoCode && 
+        p.branchId === selectedBranchId && 
+        p.isActive &&
+        new Date(p.expiryDate) > new Date() &&
+        subtotal >= p.minOrderAmount
+      );
+      
+      if (validPromo) {
+        return validPromo.type === 'percentage' 
+          ? subtotal * (validPromo.value / 100) 
+          : validPromo.value;
+      }
+    } catch (error) {
+      console.log('Error calculating promo discount:', error);
+    }
+    
     return 0;
   };
   
-  const discount = getDiscount();
+  const discount = calculateDiscount(subtotal);
   const totalPrice = subtotal - discount;
-
 
   const handleWhatsAppOrder = async () => {
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
@@ -88,25 +111,31 @@ export const CartSheet: React.FC<CartSheetProps> = ({
       (customerInfo.notes ? `\n\n📝 *Notes:* ${customerInfo.notes}` : '') +
       `\n\n🕒 Order placed at: ${new Date().toLocaleString('id-ID')}`;
 
-    // Get WhatsApp number from brand settings based on current branch
+    // Get WhatsApp number from selected branch instead of brand settings
     let whatsappNumber = "628158882505"; // Default fallback number
     try {
-      const { data: brandSettings } = await supabase
-        .from('brand_settings')
-        .select('whatsapp_number')
-        .single();
+      const selectedBranchId = localStorage.getItem('selectedBranch');
       
-      if (brandSettings?.whatsapp_number) {
-        whatsappNumber = brandSettings.whatsapp_number;
+      if (selectedBranchId) {
+        const { data: branchData } = await supabase
+          .from('branches')
+          .select('whatsapp_number')
+          .eq('id', selectedBranchId)
+          .single();
+        
+        if (branchData?.whatsapp_number) {
+          whatsappNumber = branchData.whatsapp_number;
+        }
       }
     } catch (error) {
-      console.log('Using default WhatsApp number');
+      console.log('Using default WhatsApp number, branch-specific number not found');
     }
 
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderText)}`;
     
     // Save order to database
     try {
+      const selectedBranchId = localStorage.getItem('selectedBranch') || 'default-branch';
       const orderData = {
         customer_name: customerInfo.name,
         customer_phone: customerInfo.phone,
@@ -123,7 +152,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
         status: 'pending' as const,
         promo_code: promoCode || null,
         notes: customerInfo.notes || null,
-        branch_id: 'current-branch-id' // Should come from context
+        branch_id: selectedBranchId
       };
 
       await supabase.from('orders').insert(orderData);
@@ -268,9 +297,10 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                   <Button
                     variant="outline"
                     onClick={() => {
-                      if (promoCode && (promoCode === 'WELCOME20' || promoCode === 'SAVE10')) {
+                      const discount = calculateDiscount(subtotal);
+                      if (promoCode && discount > 0) {
                         toast({
-                          title: "Promo Applied!",
+                          title: "Success!",
                           description: `${promoCode} discount applied successfully`,
                         });
                       } else if (promoCode) {
