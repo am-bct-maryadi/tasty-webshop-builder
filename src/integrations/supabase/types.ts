@@ -121,6 +121,57 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          branch_id: string
+          created_at: string
+          customer_address: string
+          customer_name: string
+          customer_phone: string
+          discount: number | null
+          id: string
+          items: Json
+          notes: string | null
+          promo_code: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          customer_address: string
+          customer_name: string
+          customer_phone: string
+          discount?: number | null
+          id?: string
+          items: Json
+          notes?: string | null
+          promo_code?: string | null
+          status?: string
+          subtotal: number
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          customer_address?: string
+          customer_name?: string
+          customer_phone?: string
+          discount?: number | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          promo_code?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           branch_id: string

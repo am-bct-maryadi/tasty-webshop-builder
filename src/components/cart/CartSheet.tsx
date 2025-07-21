@@ -66,7 +66,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     try {
       const validPromo = promos.find(p => 
         p.code === promoCode && 
-        p.branchId === selectedBranchId && 
+        (p.branchId === selectedBranchId || p.branchId === 'all') && 
         p.isActive &&
         new Date(p.expiryDate) > new Date() &&
         subtotal >= p.minOrderAmount

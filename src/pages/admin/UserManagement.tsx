@@ -165,26 +165,26 @@ export const UserManagement: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    rules={{ 
-                      required: editingUser ? false : "Password is required",
-                      minLength: {
-                        value: 6,
-                        message: "Password must be at least 6 characters"
-                      }
-                    }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password {editingUser && "(leave blank to keep current)"}</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder={editingUser ? "••••••••" : "password123"} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                   <FormField
+                     control={form.control}
+                     name="password"
+                     rules={{ 
+                       required: editingUser ? false : "Password is required",
+                       minLength: {
+                         value: 6,
+                         message: "Password must be at least 6 characters"
+                       }
+                     }}
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Password {editingUser && "(leave blank to keep current)"}</FormLabel>
+                         <FormControl>
+                           <Input type="password" placeholder={editingUser ? "••••••••" : "minimum 6 characters"} {...field} />
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}

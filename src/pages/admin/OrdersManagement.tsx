@@ -45,45 +45,6 @@ export const OrdersManagement: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  // Mock data for now - in real app this would come from Supabase
-  const mockOrders: Order[] = [
-    {
-      id: '1',
-      customer_name: 'John Doe',
-      customer_phone: '+62812345678',
-      customer_address: 'Jl. Sudirman No. 123, Jakarta',
-      items: [
-        { product_id: '1', product_name: 'Classic Cheeseburger', quantity: 2, price: 45000 },
-        { product_id: '2', product_name: 'French Fries', quantity: 1, price: 25000 }
-      ],
-      subtotal: 115000,
-      discount: 11500,
-      total: 103500,
-      status: 'pending',
-      promo_code: 'SAVE10',
-      notes: 'Extra cheese please',
-      branch_id: selectedBranch || '1',
-      created_at: '2024-01-08T10:30:00Z',
-      updated_at: '2024-01-08T10:30:00Z'
-    },
-    {
-      id: '2',
-      customer_name: 'Jane Smith',
-      customer_phone: '+62887654321',
-      customer_address: 'Jl. Thamrin No. 456, Jakarta',
-      items: [
-        { product_id: '3', product_name: 'Margherita Pizza', quantity: 1, price: 65000 }
-      ],
-      subtotal: 65000,
-      discount: 0,
-      total: 65000,
-      status: 'confirmed',
-      branch_id: selectedBranch || '1',
-      created_at: '2024-01-08T11:15:00Z',
-      updated_at: '2024-01-08T11:20:00Z'
-    }
-  ];
-
   useEffect(() => {
     loadOrders();
   }, [selectedBranch]);
@@ -91,15 +52,20 @@ export const OrdersManagement: React.FC = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      // In real app, fetch from Supabase:
-      // const { data, error } = await supabase
-      //   .from('orders')
-      //   .select('*')
-      //   .eq('branch_id', selectedBranch)
-      //   .order('created_at', { ascending: false });
+      let query = supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
       
-      // For now, use mock data
-      setOrders(mockOrders);
+      // Filter by branch if one is selected
+      if (selectedBranch) {
+        query = query.eq('branch_id', selectedBranch);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      setOrders(data || []);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast({
@@ -114,13 +80,14 @@ export const OrdersManagement: React.FC = () => {
 
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     try {
-      // In real app, update in Supabase:
-      // const { error } = await supabase
-      //   .from('orders')
-      //   .update({ status: newStatus, updated_at: new Date().toISOString() })
-      //   .eq('id', orderId);
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
 
-      // For now, update local state
+      if (error) throw error;
+
+      // Update local state
       setOrders(prev => prev.map(order => 
         order.id === orderId 
           ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
