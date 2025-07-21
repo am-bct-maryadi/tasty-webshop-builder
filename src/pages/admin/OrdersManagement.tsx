@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/contexts/AdminContext';
 import { formatCurrency } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { BranchSelector } from '@/components/admin/BranchSelector';
 
 export interface Order {
   id: string;
@@ -37,7 +38,7 @@ export interface Order {
 }
 
 export const OrdersManagement: React.FC = () => {
-  const [selectedBranch, setSelectedBranch] = useState('1');
+  const { selectedAdminBranch, branches } = useAdmin();
   const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export const OrdersManagement: React.FC = () => {
 
   useEffect(() => {
     loadOrders();
-  }, [selectedBranch]);
+  }, [selectedAdminBranch]);
 
   const loadOrders = async () => {
     setLoading(true);
@@ -58,8 +59,8 @@ export const OrdersManagement: React.FC = () => {
         .order('created_at', { ascending: false });
       
       // Filter by branch if one is selected
-      if (selectedBranch) {
-        query = query.eq('branch_id', selectedBranch);
+      if (selectedAdminBranch) {
+        query = query.eq('branch_id', selectedAdminBranch);
       }
       
       const { data, error } = await query;
@@ -140,6 +141,7 @@ export const OrdersManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <BranchSelector />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Orders Management</h1>
