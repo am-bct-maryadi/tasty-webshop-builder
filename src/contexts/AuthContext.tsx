@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -30,16 +31,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return localStorage.getItem('foodieapp-admin') === 'true';
   });
 
-  const login = (username: string, password: string): boolean => {
-    // Simple admin login - in production use proper authentication
-    if (username === 'admin' && password === 'admin123') {
-      setIsAuthenticated(true);
-      setIsAdmin(true);
-      localStorage.setItem('foodieapp-auth', 'true');
-      localStorage.setItem('foodieapp-admin', 'true');
-      return true;
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      // Query the users table to find a matching user
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !users) {
+        return false;
+      }
+
+      // For demo purposes, we'll store the password in plain text
+      // In production, you should hash passwords
+      if (users.password === password) {
+        setIsAuthenticated(true);
+        setIsAdmin(users.role === 'admin');
+        localStorage.setItem('foodieapp-auth', 'true');
+        localStorage.setItem('foodieapp-admin', users.role === 'admin' ? 'true' : 'false');
+        localStorage.setItem('foodieapp-user', JSON.stringify(users));
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
@@ -47,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsAdmin(false);
     localStorage.removeItem('foodieapp-auth');
     localStorage.removeItem('foodieapp-admin');
+    localStorage.removeItem('foodieapp-user');
   };
 
   const value: AuthContextType = {
