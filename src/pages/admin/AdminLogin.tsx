@@ -27,6 +27,10 @@ export const AdminLogin: React.FC = () => {
           title: "Login Successful",
           description: "Welcome to FoodieApp Admin Dashboard",
         });
+        // Force a small delay to ensure state updates are processed
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       } else {
         toast({
           title: "Login Failed",

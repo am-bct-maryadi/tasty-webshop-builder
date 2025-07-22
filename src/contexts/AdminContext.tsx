@@ -501,6 +501,11 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         if (brandData) {
           setBrandSettings(brandData);
         }
+
+        // Set default branch selection to the first branch to avoid data clustering
+        if (branchesData && branchesData.length > 0 && !selectedAdminBranch) {
+          setSelectedAdminBranch(branchesData[0].id);
+        }
       } catch (error) {
         console.error('Error loading data from Supabase:', error);
         // Use fallback data from database if available
