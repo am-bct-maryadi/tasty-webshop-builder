@@ -27,6 +27,7 @@ interface User {
   id: string;
   username: string;
   email: string;
+  password?: string;
   role: 'admin' | 'manager' | 'staff';
   isActive: boolean;
   branchId: string;

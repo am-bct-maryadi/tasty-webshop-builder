@@ -19,20 +19,25 @@ export const AdminLogin: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate loading
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const success = login(username, password);
-    
-    if (success) {
+    try {
+      const success = await login(username, password);
+      
+      if (success) {
+        toast({
+          title: "Login Successful",
+          description: "Welcome to FoodieApp Admin Dashboard",
+        });
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid username or password",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Login Successful",
-        description: "Welcome to FoodieApp Admin Dashboard",
-      });
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
+        title: "Login Error",
+        description: "An error occurred during login",
         variant: "destructive",
       });
     }
@@ -115,8 +120,9 @@ export const AdminLogin: React.FC = () => {
             <div className="mt-6 p-4 bg-muted/30 rounded-lg">
               <p className="text-sm text-muted-foreground text-center">
                 <strong>Demo Credentials:</strong><br />
-                Username: admin<br />
-                Password: admin123
+                Downtown: admin1 / password<br />
+                Mall: admin2 / password<br />
+                University: admin3 / password
               </p>
             </div>
           </CardContent>
