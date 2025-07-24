@@ -1,6 +1,62 @@
-# Installation Guide for Self-Hosting with MariaDB
+# Installation and Hosting Setup Guide
 
-This guide will help you deploy this React application on your own web hosting with MariaDB database.
+This guide covers different hosting scenarios and the configuration files needed for proper routing.
+
+## For Apache Hosting (Shared Hosting/cPanel)
+
+The project includes a `.htaccess` file in the `public` folder. After building and uploading the `dist` folder contents:
+
+1. Make sure the `.htaccess` file is uploaded to your hosting root directory
+2. If it's not automatically copied, manually upload the `.htaccess` file from the `public` folder
+
+## For Netlify
+
+The project includes a `_redirects` file in the `public` folder that will automatically handle routing.
+
+## For Vercel
+
+The project includes `vercel.json` which automatically handles routing.
+
+## For Nginx
+
+Add this to your Nginx configuration:
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+## For Other Static Hosting
+
+If your hosting provider doesn't support the above configurations, you may need to:
+
+1. Contact your hosting provider about enabling URL rewriting for SPAs
+2. Or configure your hosting to serve `index.html` for all routes
+
+## General Deployment Steps
+
+1. Build the project: `npm run build`
+2. Upload the contents of the `dist` folder to your hosting root directory
+3. Ensure the appropriate configuration file (`.htaccess`, `_redirects`, etc.) is in place
+4. Test by accessing `/admin` directly in your browser
+
+## Common Issues
+
+- **404 on /admin**: Your hosting doesn't have proper URL rewriting configured
+- **Blank page**: Check browser console for errors, usually related to incorrect base path
+- **Assets not loading**: Ensure all files from `dist` folder are uploaded correctly
+
+## Testing
+
+After deployment, test these URLs:
+- `https://yourdomain.com/` (should load the main page)
+- `https://yourdomain.com/admin` (should load the admin login)
+- Refresh the page while on `/admin` (should not show 404)
+
+---
+
+# MariaDB Self-Hosting Guide
 
 ## Prerequisites
 
