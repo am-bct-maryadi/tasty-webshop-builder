@@ -14,6 +14,16 @@ import { useToast } from '@/hooks/use-toast';
 import { BranchSelector } from '@/components/admin/BranchSelector';
 import type { Product } from '@/components/product/ProductCard';
 
+// URL validation helper function
+const isValidUrl = (string: string): boolean => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export const ProductsManagement: React.FC = () => {
   const { products, categories, addProduct, updateProduct, deleteProduct, selectedAdminBranch, branches } = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,6 +66,26 @@ export const ProductsManagement: React.FC = () => {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate image URL length
+    if (formData.image && formData.image.length > 2000) {
+      toast({
+        title: "Validation Error",
+        description: "Image URL is too long. Please use a shorter URL or upload the image to an image hosting service.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate if image URL is a valid URL format
+    if (formData.image && formData.image.trim() && !isValidUrl(formData.image)) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid image URL",
         variant: "destructive",
       });
       return;
@@ -212,7 +242,17 @@ export const ProductsManagement: React.FC = () => {
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     placeholder="https://example.com/image.jpg"
+                    className={formData.image.length > 2000 ? "border-destructive" : ""}
                   />
+                  {formData.image && (
+                    <p className={`text-xs ${formData.image.length > 2000 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {formData.image.length}/2000 characters
+                      {formData.image.length > 2000 && " (URL too long)"}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Optional. Leave empty for default image.
+                  </p>
                 </div>
               </div>
 
