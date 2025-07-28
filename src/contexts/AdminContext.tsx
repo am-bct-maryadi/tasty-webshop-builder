@@ -199,70 +199,7 @@ export const useAdmin = () => {
 };
 
 // Initial data
-const initialProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Classic Cheeseburger',
-    description: 'Juicy beef patty with cheese, lettuce, tomato, and our special sauce',
-    price: 12.99,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop',
-    category: 'burgers',
-    rating: 4.8,
-    prepTime: 15,
-    isAvailable: true,
-    isPopular: true,
-    branchId: '1'
-  },
-  {
-    id: '2',
-    name: 'Margherita Pizza',
-    description: 'Fresh mozzarella, basil, and tomato sauce on crispy dough',
-    price: 16.99,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=400&fit=crop',
-    category: 'pizza',
-    rating: 4.9,
-    prepTime: 20,
-    isAvailable: true,
-    isPopular: true,
-    branchId: '1'
-  },
-  {
-    id: '3',
-    name: 'Caesar Salad',
-    description: 'Crisp romaine lettuce, parmesan, croutons, and caesar dressing',
-    price: 9.99,
-    image: 'https://images.unsplash.com/photo-1551248429-40975aa4de74?w=400&h=400&fit=crop',
-    category: 'salads',
-    rating: 4.6,
-    prepTime: 10,
-    isAvailable: true,
-    branchId: '2'
-  },
-  {
-    id: '4',
-    name: 'Iced Coffee',
-    description: 'Premium cold brew coffee served with ice and your choice of milk',
-    price: 4.99,
-    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=400&fit=crop',
-    category: 'beverages',
-    rating: 4.7,
-    prepTime: 5,
-    isAvailable: true,
-    branchId: '2'
-  },
-  {
-    id: '5',
-    name: 'Pepperoni Pizza',
-    description: 'Classic pepperoni with mozzarella and tomato sauce',
-    price: 18.99,
-    image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=400&fit=crop',
-    category: 'pizza',
-    rating: 4.8,
-    prepTime: 20,
-    isAvailable: true,
-    branchId: '3'
-  }
-];
+const initialProducts: Product[] = [];
 
 const initialCategories: Category[] = [
   { id: 'burgers', name: 'Burgers', count: 1, branchId: '1' },
@@ -339,22 +276,22 @@ const initialUsers: User[] = [
 ];
 
 const initialBrandSettings: BrandSettings = {
-  companyName: 'FoodieApp',
+  companyName: 'Your Business',
   logo: '',
   tagline: 'Delicious food delivered to your door',
   description: 'We are a premium food delivery service committed to bringing you the best meals from top restaurants in your area.',
-  website: 'https://foodieapp.com',
-  email: 'contact@foodieapp.com',
+  website: 'https://yourbusiness.com',
+  email: 'contact@yourbusiness.com',
   phone: '+1 (555) 123-4567',
   address: '123 Food Street, Culinary City, FC 12345',
   socialMedia: {
-    facebook: 'https://facebook.com/foodieapp',
-    twitter: 'https://twitter.com/foodieapp',
-    instagram: 'https://instagram.com/foodieapp',
-    linkedin: 'https://linkedin.com/company/foodieapp',
+    facebook: '',
+    twitter: '',
+    instagram: '',
+    linkedin: '',
   },
   footerText: 'Your favorite meals, delivered fresh and fast.',
-  copyrightText: '© 2024 FoodieApp. All rights reserved.',
+  copyrightText: '© 2024 Your Business. All rights reserved.',
 };
 
 const initialThemeSettings: ThemeSettings = {
