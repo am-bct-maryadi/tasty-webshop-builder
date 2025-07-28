@@ -103,7 +103,7 @@ const dbToCategory = (dbCategory: any): Category => ({
 
 const categoryToDb = (category: Omit<Category, 'id' | 'count'>) => ({
   name: category.name,
-  count: 0,
+  count: 1,
   branch_id: category.branchId,
 });
 
