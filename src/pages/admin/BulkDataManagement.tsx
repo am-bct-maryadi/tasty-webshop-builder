@@ -212,8 +212,25 @@ export const BulkDataManagement: React.FC = () => {
         try {
           switch (selectedType) {
             case 'products':
-              if (row.data.id && products.find(p => p.id === row.data.id)) {
-                updateProduct(row.data.id, row.data);
+              // Check for existing product by ID or name
+              const existingProduct = products.find(p => 
+                (row.data.id && p.id === row.data.id) || 
+                (p.name === row.data.name && p.branchId === (selectedAdminBranch || '1'))
+              );
+              
+              if (existingProduct) {
+                updateProduct(existingProduct.id, {
+                  name: row.data.name,
+                  description: row.data.description || '',
+                  price: Number(row.data.price),
+                  category: row.data.category,
+                  rating: Number(row.data.rating) || 0,
+                  prepTime: Number(row.data.prepTime) || 0,
+                  isAvailable: Boolean(row.data.isAvailable),
+                  isPopular: Boolean(row.data.isPopular),
+                  image: row.data.image || '',
+                  branchId: selectedAdminBranch || '1'
+                });
               } else {
                 addProduct({
                   name: row.data.name,
