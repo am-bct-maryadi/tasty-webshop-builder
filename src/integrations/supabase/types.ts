@@ -96,6 +96,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          sort_order: number | null
         }
         Insert: {
           branch_id: string
@@ -103,6 +104,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          sort_order?: number | null
         }
         Update: {
           branch_id?: string
@@ -110,6 +112,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          sort_order?: number | null
         }
         Relationships: [
           {

@@ -13,6 +13,7 @@ import { BranchSelector } from '@/components/admin/BranchSelector';
 
 interface CategoryFormData {
   name: string;
+  sortOrder: number;
 }
 
 export const CategoriesManagement: React.FC = () => {
@@ -24,6 +25,7 @@ export const CategoriesManagement: React.FC = () => {
   const form = useForm<CategoryFormData>({
     defaultValues: {
       name: '',
+      sortOrder: 0,
     },
   });
 
@@ -48,6 +50,7 @@ export const CategoriesManagement: React.FC = () => {
     setEditingCategory(category.id);
     form.reset({
       name: category.name,
+      sortOrder: category.sortOrder || 0,
     });
     setIsDialogOpen(true);
   };
@@ -65,6 +68,7 @@ export const CategoriesManagement: React.FC = () => {
     setEditingCategory(null);
     form.reset({
       name: '',
+      sortOrder: categories.length,
     });
     setIsDialogOpen(true);
   };
@@ -113,6 +117,25 @@ export const CategoriesManagement: React.FC = () => {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="sortOrder"
+                  rules={{ required: "Sort order is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="0" 
+                          {...field} 
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
@@ -137,6 +160,7 @@ export const CategoriesManagement: React.FC = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
+                <TableHead>Sort Order</TableHead>
                 <TableHead>Product Count</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -149,6 +173,9 @@ export const CategoriesManagement: React.FC = () => {
                       <Tag className="h-4 w-4 text-muted-foreground" />
                       {category.name}
                     </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {category.sortOrder || 0}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {category.count} items

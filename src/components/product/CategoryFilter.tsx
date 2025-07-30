@@ -8,6 +8,7 @@ export interface Category {
   icon?: string;
   count: number;
   branchId: string;
+  sortOrder?: number;
 }
 
 interface CategoryFilterProps {

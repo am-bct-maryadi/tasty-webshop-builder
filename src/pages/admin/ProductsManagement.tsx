@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useToast } from '@/hooks/use-toast';
 import { BranchSelector } from '@/components/admin/BranchSelector';
+import { ImageUpload } from '@/components/ui/image-upload';
 import type { Product } from '@/components/product/ProductCard';
 
 // URL validation helper function
@@ -71,25 +72,7 @@ export const ProductsManagement: React.FC = () => {
       return;
     }
 
-    // Validate image URL length
-    if (formData.image && formData.image.length > 2000) {
-      toast({
-        title: "Validation Error",
-        description: "Image URL is too long. Please use a shorter URL or upload the image to an image hosting service.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate if image URL is a valid URL format
-    if (formData.image && formData.image.trim() && !isValidUrl(formData.image)) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid image URL",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Image is now handled by the ImageUpload component, no validation needed
 
     const productData = {
       name: formData.name,
@@ -236,22 +219,14 @@ export const ProductsManagement: React.FC = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="image">Image URL</Label>
-                  <Input
-                    id="image"
+                  <Label htmlFor="image">Product Image</Label>
+                  <ImageUpload
                     value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                    className={formData.image.length > 2000 ? "border-destructive" : ""}
+                    onChange={(imagePath) => setFormData({ ...formData, image: imagePath })}
+                    onRemove={() => setFormData({ ...formData, image: '' })}
                   />
-                  {formData.image && (
-                    <p className={`text-xs ${formData.image.length > 2000 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                      {formData.image.length}/2000 characters
-                      {formData.image.length > 2000 && " (URL too long)"}
-                    </p>
-                  )}
                   <p className="text-xs text-muted-foreground">
-                    Optional. Leave empty for default image.
+                    Upload a product image or leave empty for default image.
                   </p>
                 </div>
               </div>

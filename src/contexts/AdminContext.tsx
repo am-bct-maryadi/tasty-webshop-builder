@@ -427,7 +427,7 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         // Update categories with proper counts
         const updatedCategories = categories.map(cat => ({
           ...cat,
-          count: products.filter(p => p.category === cat.id && p.branchId === cat.branchId).length
+          count: products.filter(p => p.category === cat.name && p.branchId === cat.branchId).length
         }));
         setAllCategories(updatedCategories);
         

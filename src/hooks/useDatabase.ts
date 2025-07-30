@@ -99,12 +99,14 @@ const dbToCategory = (dbCategory: any): Category => ({
   name: dbCategory.name,
   count: dbCategory.count,
   branchId: dbCategory.branch_id,
+  sortOrder: dbCategory.sort_order || 0,
 });
 
 const categoryToDb = (category: Omit<Category, 'id' | 'count'>) => ({
   name: category.name,
   count: 1,
   branch_id: category.branchId,
+  sort_order: category.sortOrder || 0,
 });
 
 const dbToPromo = (dbPromo: any): Promo => ({
@@ -244,7 +246,10 @@ export const useDatabase = () => {
 
   // Categories
   const getCategories = async (): Promise<Category[]> => {
-    const { data, error } = await supabase.from('categories').select('*');
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('sort_order', { ascending: true });
     if (error) throw error;
     return data.map(dbToCategory);
   };
@@ -260,9 +265,13 @@ export const useDatabase = () => {
   };
 
   const updateCategory = async (id: string, category: Partial<Category>): Promise<Category> => {
+    const updateData: any = {};
+    if (category.name !== undefined) updateData.name = category.name;
+    if (category.sortOrder !== undefined) updateData.sort_order = category.sortOrder;
+    
     const { data, error } = await supabase
       .from('categories')
-      .update({ name: category.name })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
