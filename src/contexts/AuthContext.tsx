@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import bcrypt from 'bcryptjs';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -45,9 +46,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
 
-      // For demo purposes, we'll store the password in plain text
-      // In production, you should hash passwords
-      if (users.password === password) {
+      // Compare password with bcrypt hash
+      const isPasswordValid = await bcrypt.compare(password, users.password);
+      if (isPasswordValid) {
         setIsAuthenticated(true);
         setIsAdmin(users.role === 'admin');
         localStorage.setItem('foodieapp-auth', 'true');
