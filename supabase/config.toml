@@ -64,3 +64,6 @@ template = "Your code is {{ .Code }}"
 
 [functions.generate-password-hash]
 verify_jwt = false
+
+[functions.create-fresh-hash]
+verify_jwt = false
