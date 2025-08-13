@@ -31,8 +31,20 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Clear the input value to allow re-uploading the same file
+    event.target.value = '';
+
+    console.log('🔄 Starting file upload to bucket:', bucket);
+    console.log('📁 File details:', { 
+      name: file.name, 
+      size: file.size, 
+      type: file.type,
+      sizeInMB: (file.size / (1024 * 1024)).toFixed(2)
+    });
+
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
+      console.error('❌ File too large:', file.size, 'Max:', maxSize * 1024 * 1024);
       toast({
         title: "File too large",
         description: `Please select an image smaller than ${maxSize}MB`,
@@ -43,6 +55,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
+      console.error('❌ Invalid file type:', file.type);
       toast({
         title: "Invalid file type",
         description: "Please select an image file",
@@ -55,8 +68,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     
     try {
       // Create a unique filename
-      const fileExtension = file.name.split('.').pop();
+      const fileExtension = file.name.split('.').pop() || 'jpg';
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+      
+      console.log('📝 Generated filename:', fileName);
       
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -66,27 +81,47 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           upsert: false
         });
 
+      console.log('📤 Upload response:', { data, error });
+
       if (error) {
-        throw error;
+        console.error('❌ Supabase upload error:', error);
+        throw new Error(`Storage upload failed: ${error.message}`);
+      }
+
+      if (!data?.path) {
+        console.error('❌ No file path returned from upload');
+        throw new Error('No file path returned from upload');
       }
 
       // Get the public URL for the uploaded file
       const { data: urlData } = supabase.storage
         .from(bucket)
-        .getPublicUrl(fileName);
+        .getPublicUrl(data.path);
+
+      console.log('🌐 URL data:', urlData);
+
+      if (!urlData?.publicUrl) {
+        console.error('❌ Failed to generate public URL');
+        throw new Error('Failed to generate public URL');
+      }
 
       const imageUrl = urlData.publicUrl;
+      console.log('✅ Final image URL:', imageUrl);
+      
       onChange(imageUrl);
       
       toast({
         title: "Image uploaded",
         description: "Image has been saved successfully",
       });
+
+      console.log('✅ Upload completed successfully');
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('❌ Upload error details:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Upload failed",
-        description: "Failed to upload image. Please try again.",
+        description: `Upload error: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
