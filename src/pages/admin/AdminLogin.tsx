@@ -124,9 +124,10 @@ export const AdminLogin: React.FC = () => {
             <div className="mt-6 p-4 bg-muted/30 rounded-lg">
               <p className="text-sm text-muted-foreground text-center">
                 <strong>Demo Credentials:</strong><br />
-                Downtown: admin1 / password<br />
-                Mall: admin2 / password<br />
-                University: admin3 / password
+                Kemang: admin_kemang / password<br />
+                Pacific Place: admin_pacific / password<br />
+                Golf Island: admin_golf_island / password<br />
+                PP: ADM_PP / password
               </p>
             </div>
           </CardContent>

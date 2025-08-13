@@ -34,6 +34,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
+      console.log('🔍 Login attempt for username:', username);
+      console.log('🔍 Password provided:', password);
+      
       // Query the users table to find a matching user
       const { data: users, error } = await supabase
         .from('users')
@@ -42,13 +45,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('is_active', true)
         .single();
 
+      console.log('🔍 Database query error:', error);
+      console.log('🔍 User found:', users ? 'YES' : 'NO');
+      if (users) {
+        console.log('🔍 User details:', { username: users.username, role: users.role, is_active: users.is_active });
+        console.log('🔍 Password hash from DB:', users.password);
+      }
+
       if (error || !users) {
+        console.log('❌ Login failed: User not found or database error');
         return false;
       }
 
       // Compare password with bcrypt hash
+      console.log('🔍 Comparing password with hash...');
       const isPasswordValid = await bcrypt.compare(password, users.password);
+      console.log('🔍 Password comparison result:', isPasswordValid);
+      
       if (isPasswordValid) {
+        console.log('✅ Login successful!');
         setIsAuthenticated(true);
         setIsAdmin(users.role === 'admin');
         localStorage.setItem('foodieapp-auth', 'true');
@@ -57,9 +72,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
       
+      console.log('❌ Login failed: Invalid password');
       return false;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('💥 Login error:', error);
       return false;
     }
   };
