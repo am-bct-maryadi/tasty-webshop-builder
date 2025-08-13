@@ -224,6 +224,7 @@ export const ProductsManagement: React.FC = () => {
                     value={formData.image}
                     onChange={(imagePath) => setFormData({ ...formData, image: imagePath })}
                     onRemove={() => setFormData({ ...formData, image: '' })}
+                    bucket="product-images"
                   />
                   <p className="text-xs text-muted-foreground">
                     Upload a product image or leave empty for default image.

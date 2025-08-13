@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploadProps {
   value?: string;
@@ -10,6 +11,7 @@ interface ImageUploadProps {
   className?: string;
   accept?: string;
   maxSize?: number; // in MB
+  bucket?: 'product-images' | 'brand-assets';
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -18,7 +20,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   onRemove,
   className = '',
   accept = 'image/*',
-  maxSize = 5
+  maxSize = 5,
+  bucket = 'product-images'
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -54,42 +57,31 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       // Create a unique filename
       const fileExtension = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-      const filePath = `src/assets/${fileName}`;
-
-      // Convert file to base64 for saving
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const result = e.target?.result as string;
-        
-        // Here we would normally save to the file system
-        // For now, we'll create a blob URL as a temporary solution
-        const blob = await fetch(result).then(r => r.blob());
-        const blobUrl = URL.createObjectURL(blob);
-        
-        // Store the file reference for later use
-        const fileData = {
-          name: fileName,
-          path: filePath,
-          url: blobUrl,
-          originalName: file.name,
-          size: file.size,
-          type: file.type
-        };
-
-        // Save file data to localStorage for persistence
-        const savedFiles = JSON.parse(localStorage.getItem('uploaded-images') || '{}');
-        savedFiles[fileName] = fileData;
-        localStorage.setItem('uploaded-images', JSON.stringify(savedFiles));
-
-        onChange(blobUrl);
-        
-        toast({
-          title: "Image uploaded",
-          description: "Image has been saved successfully",
-        });
-      };
       
-      reader.readAsDataURL(file);
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Get the public URL for the uploaded file
+      const { data: urlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+      const imageUrl = urlData.publicUrl;
+      onChange(imageUrl);
+      
+      toast({
+        title: "Image uploaded",
+        description: "Image has been saved successfully",
+      });
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
@@ -102,11 +94,29 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  const handleRemove = () => {
-    if (value && value.startsWith('blob:')) {
-      URL.revokeObjectURL(value);
+  const handleRemove = async () => {
+    if (!value) return;
+
+    try {
+      // If it's a Supabase Storage URL, extract filename and delete from storage
+      if (value.includes('supabase.co/storage/v1/object/public/')) {
+        const urlParts = value.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        
+        await supabase.storage
+          .from(bucket)
+          .remove([fileName]);
+      } else if (value.startsWith('blob:')) {
+        // Clean up blob URLs
+        URL.revokeObjectURL(value);
+      }
+      
+      onRemove?.();
+    } catch (error) {
+      console.error('Error removing image:', error);
+      // Still call onRemove to update UI even if storage deletion fails
+      onRemove?.();
     }
-    onRemove?.();
   };
 
   const openFileDialog = () => {

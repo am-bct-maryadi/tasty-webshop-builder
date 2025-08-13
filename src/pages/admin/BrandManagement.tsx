@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Building, Globe, Mail, Phone, MapPin, Upload, Image } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,11 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 export const BrandManagement: React.FC = () => {
   const { brandSettings, updateBrandSettings } = useAdmin();
   const { toast } = useToast();
-  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const form = useForm({
     defaultValues: brandSettings,
@@ -41,26 +41,19 @@ export const BrandManagement: React.FC = () => {
     }
   };
 
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast({ title: "Error", description: "Please upload an image file", variant: "destructive" });
-      return;
-    }
-
-    setLogoFile(file);
-    // In a real app, you would upload to your server here
-    // For demo, we'll use a placeholder URL
-    const logoUrl = URL.createObjectURL(file);
-    form.setValue('logo', logoUrl);
+  const handleLogoChange = async (logoUrl: string) => {
     try {
+      form.setValue('logo', logoUrl);
       await updateBrandSettings({ logo: logoUrl });
       toast({ title: "Logo updated successfully" });
     } catch (error) {
       toast({ title: "Error", description: "Failed to update logo", variant: "destructive" });
     }
+  };
+
+  const handleLogoRemove = () => {
+    form.setValue('logo', '');
+    updateBrandSettings({ logo: '' });
   };
 
   const handleLogoUrl = () => {
@@ -370,25 +363,17 @@ export const BrandManagement: React.FC = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="font-medium">Upload Logo File</h3>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <Upload className="h-8 w-8 mx-auto mb-4 text-muted-foreground" />
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                      id="logo-upload"
-                    />
-                    <label htmlFor="logo-upload" className="cursor-pointer">
-                      <Button variant="outline" asChild>
-                        <span>Choose Logo File</span>
-                      </Button>
-                    </label>
-                    <p className="text-sm text-muted-foreground mt-2">PNG, JPG up to 2MB</p>
-                  </div>
+                  <ImageUpload
+                    value={form.watch('logo') || brandSettings.logo}
+                    onChange={handleLogoChange}
+                    onRemove={handleLogoRemove}
+                    bucket="brand-assets"
+                    maxSize={2}
+                    className="max-w-md mx-auto"
+                  />
                 </div>
 
                 <div className="space-y-4">
