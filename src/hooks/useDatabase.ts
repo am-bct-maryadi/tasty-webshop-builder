@@ -363,20 +363,24 @@ export const useDatabase = () => {
   };
 
   const updateBrandSettings = async (settings: BrandSettings): Promise<BrandSettings> => {
-    // Check if brand settings already exist
+    // Get the most recent brand settings record (same logic as getBrandSettings)
     const { data: existingData } = await supabase
       .from('brand_settings')
       .select('id')
+      .order('updated_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     let data, error;
     
     if (existingData) {
-      // Update existing record
+      // Update the most recent record
       const result = await supabase
         .from('brand_settings')
-        .update(brandSettingsToDb(settings))
+        .update({
+          ...brandSettingsToDb(settings),
+          updated_at: new Date().toISOString()
+        })
         .eq('id', existingData.id)
         .select()
         .single();
