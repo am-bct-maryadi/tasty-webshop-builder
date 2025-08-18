@@ -62,10 +62,15 @@ export const BrandManagement: React.FC = () => {
 
   const handleLogoUrl = async () => {
     try {
+      console.log('🔄 Brand Management: handleLogoUrl called');
+      console.log('🔄 Brand Management: Current form values:', form.getValues());
+      console.log('🔄 Brand Management: Current brandSettings:', brandSettings);
+      
       const logoUrl = form.getValues('logo');
-      console.log('🔄 Brand Management: Updating logo URL manually:', logoUrl);
+      console.log('🔄 Brand Management: Logo URL from form:', logoUrl);
       
       if (!logoUrl) {
+        console.log('❌ Brand Management: No logo URL provided');
         toast({ 
           title: "Error", 
           description: "Please enter a logo URL", 
@@ -77,7 +82,9 @@ export const BrandManagement: React.FC = () => {
       // Validate URL format
       try {
         new URL(logoUrl);
+        console.log('✅ Brand Management: URL format is valid');
       } catch {
+        console.log('❌ Brand Management: Invalid URL format');
         toast({ 
           title: "Error", 
           description: "Please enter a valid URL", 
@@ -86,6 +93,7 @@ export const BrandManagement: React.FC = () => {
         return;
       }
 
+      console.log('🔄 Brand Management: Calling updateBrandSettings with:', { logo: logoUrl });
       await updateBrandSettings({ logo: logoUrl });
       console.log('✅ Brand Management: Logo URL updated successfully');
       toast({ title: "Logo URL updated successfully" });
