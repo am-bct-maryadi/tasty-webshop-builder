@@ -34,8 +34,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     // Clear the input value to allow re-uploading the same file
     event.target.value = '';
 
-    console.log('🔄 Starting file upload to bucket:', bucket);
-    console.log('📁 File details:', { 
+    console.log('🔄 ImageUpload: Starting file upload to bucket:', bucket);
+    console.log('📁 ImageUpload: File details:', { 
       name: file.name, 
       size: file.size, 
       type: file.type,
@@ -106,7 +106,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       }
 
       const imageUrl = urlData.publicUrl;
-      console.log('✅ Final image URL:', imageUrl);
+      console.log('✅ ImageUpload: Final image URL being passed to onChange:', imageUrl);
+      
+      // Ensure we only pass valid Supabase Storage URLs
+      if (!imageUrl.includes('supabase.co/storage/v1/object/public/')) {
+        console.error('❌ ImageUpload: Invalid URL format, not a Supabase Storage URL:', imageUrl);
+        throw new Error('Invalid storage URL generated');
+      }
       
       onChange(imageUrl);
       

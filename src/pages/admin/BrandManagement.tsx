@@ -60,11 +60,43 @@ export const BrandManagement: React.FC = () => {
     updateBrandSettings({ logo: '' });
   };
 
-  const handleLogoUrl = () => {
-    const logoUrl = form.getValues('logo');
-    if (logoUrl) {
-      updateBrandSettings({ logo: logoUrl });
+  const handleLogoUrl = async () => {
+    try {
+      const logoUrl = form.getValues('logo');
+      console.log('🔄 Brand Management: Updating logo URL manually:', logoUrl);
+      
+      if (!logoUrl) {
+        toast({ 
+          title: "Error", 
+          description: "Please enter a logo URL", 
+          variant: "destructive" 
+        });
+        return;
+      }
+
+      // Validate URL format
+      try {
+        new URL(logoUrl);
+      } catch {
+        toast({ 
+          title: "Error", 
+          description: "Please enter a valid URL", 
+          variant: "destructive" 
+        });
+        return;
+      }
+
+      await updateBrandSettings({ logo: logoUrl });
+      console.log('✅ Brand Management: Logo URL updated successfully');
       toast({ title: "Logo URL updated successfully" });
+    } catch (error) {
+      console.error('❌ Brand Management: Error updating logo URL:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ 
+        title: "Error", 
+        description: `Failed to update logo URL: ${errorMessage}`, 
+        variant: "destructive" 
+      });
     }
   };
 
