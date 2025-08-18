@@ -45,7 +45,13 @@ export const BrandManagement: React.FC = () => {
     try {
       console.log('🔄 Brand Management: Updating logo with URL:', logoUrl);
       form.setValue('logo', logoUrl);
-      await updateBrandSettings({ logo: logoUrl });
+      
+      // Update logo while preserving all other brand settings
+      await updateBrandSettings({ 
+        ...brandSettings,
+        logo: logoUrl 
+      });
+      
       console.log('✅ Brand Management: Logo updated successfully');
       toast({ title: "Logo updated successfully" });
     } catch (error) {
@@ -55,9 +61,21 @@ export const BrandManagement: React.FC = () => {
     }
   };
 
-  const handleLogoRemove = () => {
-    form.setValue('logo', '');
-    updateBrandSettings({ logo: '' });
+  const handleLogoRemove = async () => {
+    try {
+      form.setValue('logo', '');
+      
+      // Remove logo while preserving all other brand settings
+      await updateBrandSettings({ 
+        ...brandSettings,
+        logo: '' 
+      });
+      
+      toast({ title: "Logo removed successfully" });
+    } catch (error) {
+      console.error('Error removing logo:', error);
+      toast({ title: "Error", description: "Failed to remove logo", variant: "destructive" });
+    }
   };
 
   const handleLogoUrl = async () => {
