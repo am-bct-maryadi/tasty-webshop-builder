@@ -43,11 +43,15 @@ export const BrandManagement: React.FC = () => {
 
   const handleLogoChange = async (logoUrl: string) => {
     try {
+      console.log('🔄 Brand Management: Updating logo with URL:', logoUrl);
       form.setValue('logo', logoUrl);
       await updateBrandSettings({ logo: logoUrl });
+      console.log('✅ Brand Management: Logo updated successfully');
       toast({ title: "Logo updated successfully" });
     } catch (error) {
-      toast({ title: "Error", description: "Failed to update logo", variant: "destructive" });
+      console.error('❌ Brand Management: Error updating logo:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ title: "Error", description: `Failed to update logo: ${errorMessage}`, variant: "destructive" });
     }
   };
 
