@@ -495,9 +495,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      authenticate_customer: {
+        Args: { p_email: string; p_password_hash: string }
+        Returns: {
+          customer_id: string
+          email: string
+          email_verified: boolean
+          full_name: string
+          is_active: boolean
+          phone: string
+        }[]
+      }
       cleanup_expired_reset_tokens: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_customer_account: {
+        Args: {
+          p_email: string
+          p_full_name: string
+          p_marketing_consent?: boolean
+          p_password_hash: string
+          p_phone: string
+          p_privacy_accepted: boolean
+        }
+        Returns: string
       }
       get_current_user_branch: {
         Args: Record<PropertyKey, never>

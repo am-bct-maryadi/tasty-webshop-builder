@@ -177,36 +177,43 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return { success: false, error: 'You must accept the privacy policy to create an account' };
       }
 
-      // Check if email already exists
-      const { data: existingCustomer } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('email', data.email.toLowerCase());
-
-      if (existingCustomer && existingCustomer.length > 0) {
-        return { success: false, error: 'An account with this email already exists' };
-      }
-
       // Hash password
       const passwordHash = await bcrypt.hash(data.password, 12);
 
-      // Create customer
-      const { data: newCustomer, error: customerError } = await supabase
+      // Use the secure database function to create customer account
+      const { data: newCustomerId, error: rpcError } = await supabase
+        .rpc('create_customer_account', {
+          p_full_name: data.full_name,
+          p_email: data.email.toLowerCase(),
+          p_phone: data.phone,
+          p_password_hash: passwordHash,
+          p_privacy_accepted: data.privacy_accepted,
+          p_marketing_consent: data.marketing_consent,
+        });
+
+      if (rpcError) {
+        console.error('Signup error:', rpcError);
+        let errorMessage = 'Failed to create account';
+        
+        if (rpcError.message.includes('Email already exists')) {
+          errorMessage = 'An account with this email already exists';
+        } else if (rpcError.message.includes('Phone number already exists')) {
+          errorMessage = 'An account with this phone number already exists';
+        }
+        
+        return { success: false, error: errorMessage };
+      }
+
+      // Fetch the newly created customer data
+      const { data: newCustomer, error: fetchError } = await supabase
         .from('customers')
-        .insert({
-          email: data.email.toLowerCase(),
-          password_hash: passwordHash,
-          full_name: data.full_name,
-          phone: data.phone,
-          privacy_accepted: data.privacy_accepted,
-          privacy_accepted_at: new Date().toISOString(),
-          marketing_consent: data.marketing_consent,
-        })
-        .select()
+        .select('*')
+        .eq('id', newCustomerId)
         .single();
 
-      if (customerError || !newCustomer) {
-        return { success: false, error: 'Failed to create account' };
+      if (fetchError || !newCustomer) {
+        console.error('Failed to fetch customer data:', fetchError);
+        return { success: false, error: 'Account created but failed to load profile' };
       }
 
       // Create default address
