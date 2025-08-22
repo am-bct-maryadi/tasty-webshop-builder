@@ -109,8 +109,9 @@ export const CustomerAuthDialog: React.FC<CustomerAuthDialogProps> = ({
     
     if (result.success) {
       toast({ 
-        title: 'Account created!', 
-        description: 'Welcome to our platform. You have been logged in automatically.' 
+        title: 'Account created successfully!', 
+        description: 'Please check your email to verify your account before logging in. You have been automatically logged in for now.',
+        duration: 6000
       });
       onOpenChange(false);
       resetSignupForm();

@@ -138,6 +138,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🔐 Starting login process for:', email);
+      
       const { data: customer, error } = await supabase
         .from('customers')
         .select('*')
@@ -146,12 +148,24 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         .single();
 
       if (error || !customer) {
+        console.log('❌ Customer not found:', error);
         return { success: false, error: 'Invalid email or password' };
       }
 
+      console.log('✅ Customer found, verifying password');
+      console.log('Password hash from DB:', customer.password_hash);
+      
       const isPasswordValid = await bcrypt.compare(password, customer.password_hash);
+      console.log('Password validation result:', isPasswordValid);
+      
       if (!isPasswordValid) {
         return { success: false, error: 'Invalid email or password' };
+      }
+
+      // For now, allow login without email verification but log it
+      if (!customer.email_verified) {
+        console.log('⚠️ Customer logging in with unverified email');
+        // We'll allow login for now but could show a warning
       }
 
       setCustomer(customer);
@@ -164,6 +178,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         .update({ last_login: new Date().toISOString() })
         .eq('id', customer.id);
 
+      console.log('✅ Login successful');
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
