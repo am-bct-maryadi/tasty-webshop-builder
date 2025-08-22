@@ -124,11 +124,151 @@ export type Database = {
           },
         ]
       }
+      customer_addresses: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          city: string
+          country: string
+          created_at: string
+          customer_id: string
+          id: string
+          is_default: boolean
+          label: string
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          city: string
+          country?: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          is_default?: boolean
+          label: string
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_addresses_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_sessions: {
+        Row: {
+          created_at: string
+          customer_id: string
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          session_token: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          session_token: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          session_token?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_sessions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          created_at: string
+          email: string
+          email_verified: boolean
+          full_name: string
+          id: string
+          is_active: boolean
+          last_login: string | null
+          marketing_consent: boolean
+          password_hash: string
+          phone: string
+          privacy_accepted: boolean
+          privacy_accepted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          email_verified?: boolean
+          full_name: string
+          id?: string
+          is_active?: boolean
+          last_login?: string | null
+          marketing_consent?: boolean
+          password_hash: string
+          phone: string
+          privacy_accepted?: boolean
+          privacy_accepted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          email_verified?: boolean
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          last_login?: string | null
+          marketing_consent?: boolean
+          password_hash?: string
+          phone?: string
+          privacy_accepted?: boolean
+          privacy_accepted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           branch_id: string
           created_at: string
           customer_address: string
+          customer_id: string | null
           customer_name: string
           customer_phone: string
           discount: number | null
@@ -145,6 +285,7 @@ export type Database = {
           branch_id: string
           created_at?: string
           customer_address: string
+          customer_id?: string | null
           customer_name: string
           customer_phone: string
           discount?: number | null
@@ -161,6 +302,7 @@ export type Database = {
           branch_id?: string
           created_at?: string
           customer_address?: string
+          customer_id?: string | null
           customer_name?: string
           customer_phone?: string
           discount?: number | null
@@ -173,7 +315,15 @@ export type Database = {
           total?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       password_reset_tokens: {
         Row: {
