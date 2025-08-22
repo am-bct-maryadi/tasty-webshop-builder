@@ -6,6 +6,7 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { ProductCatalog } from '@/components/product/ProductCatalog';
 import { PromoPopup } from '@/components/landing/PromoPopup';
 import { Footer } from '@/components/layout/Footer';
+import { CustomerNav } from '@/components/customer/CustomerNav';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
