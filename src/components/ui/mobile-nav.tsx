@@ -3,6 +3,7 @@ import { Menu, X, Home, UtensilsCrossed, MapPin, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAdmin } from '@/contexts/AdminContext';
+import { CustomerNav } from '@/components/customer/CustomerNav';
 
 
 interface MobileNavProps {
@@ -51,6 +52,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           </div>
           
           <div className="flex items-center gap-2">
+            {/* Customer Navigation - visible on all screen sizes */}
+            <div className="hidden md:block">
+              <CustomerNav />
+            </div>
+            
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
@@ -95,6 +101,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                   );
                 })}
               </nav>
+              
+              {/* Customer Navigation for Mobile */}
+              <div className="mt-6 pt-6 border-t">
+                <CustomerNav />
+              </div>
             </SheetContent>
             </Sheet>
           </div>
