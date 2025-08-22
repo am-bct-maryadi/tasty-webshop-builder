@@ -180,8 +180,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // Hash password
       const passwordHash = await bcrypt.hash(data.password, 12);
 
-      // Use the secure database function to create customer account
-      const { data: newCustomerId, error: rpcError } = await supabase
+      // Use the secure database function to create customer account and get complete data
+      const { data: customerResult, error: rpcError } = await supabase
         .rpc('create_customer_account', {
           p_full_name: data.full_name,
           p_email: data.email.toLowerCase(),
@@ -204,17 +204,23 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return { success: false, error: errorMessage };
       }
 
-      // Fetch the newly created customer data
-      const { data: newCustomer, error: fetchError } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('id', newCustomerId)
-        .single();
-
-      if (fetchError || !newCustomer) {
-        console.error('Failed to fetch customer data:', fetchError);
-        return { success: false, error: 'Account created but failed to load profile' };
+      if (!customerResult || customerResult.length === 0) {
+        return { success: false, error: 'Failed to create account' };
       }
+
+      // The function now returns the complete customer data directly
+      const customerData = customerResult[0];
+      const newCustomer = {
+        id: customerData.customer_id,
+        email: customerData.email,
+        full_name: customerData.full_name,
+        phone: customerData.phone,
+        is_active: customerData.is_active,
+        email_verified: customerData.email_verified,
+        privacy_accepted: customerData.privacy_accepted,
+        marketing_consent: customerData.marketing_consent,
+        created_at: customerData.created_at,
+      };
 
       // Create default address
       await supabase

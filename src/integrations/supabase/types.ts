@@ -519,7 +519,17 @@ export type Database = {
           p_phone: string
           p_privacy_accepted: boolean
         }
-        Returns: string
+        Returns: {
+          created_at: string
+          customer_id: string
+          email: string
+          email_verified: boolean
+          full_name: string
+          is_active: boolean
+          marketing_consent: boolean
+          phone: string
+          privacy_accepted: boolean
+        }[]
       }
       get_current_user_branch: {
         Args: Record<PropertyKey, never>
