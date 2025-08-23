@@ -139,6 +139,16 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const login = async (email: string, password: string) => {
     try {
       console.log('🔐 Starting login process for:', email);
+      console.log('Email normalized:', email.toLowerCase());
+      
+      // First check if customer exists without any filters
+      const { data: allCustomers, error: checkError } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('email', email.toLowerCase());
+      
+      console.log('All customers with this email:', allCustomers);
+      console.log('Check error:', checkError);
       
       const { data: customer, error } = await supabase
         .from('customers')
