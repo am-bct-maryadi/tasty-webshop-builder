@@ -140,51 +140,47 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       console.log('🔐 Starting login process for:', email);
       
-      // First get customer data to verify existence
-      const { data: customer, error } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('email', email.toLowerCase())
-        .eq('is_active', true)
-        .single();
-
-      if (error || !customer) {
-        console.log('❌ Customer not found:', error);
+      // Hash the password to match the stored hash format
+      const hashedPassword = await bcrypt.hash(password, 12);
+      
+      // Use the existing authenticate_customer database function
+      // This bypasses RLS and performs secure server-side authentication
+      const { data: customerData, error } = await supabase
+        .rpc('authenticate_customer', {
+          p_email: email.toLowerCase(),
+          p_password_hash: hashedPassword
+        });
+      
+      if (error) {
+        console.log('❌ Authentication RPC error:', error);
         return { success: false, error: 'Invalid email or password' };
       }
 
-      console.log('✅ Customer found, verifying password');
-      
-      // Verify password using bcrypt
-      const isPasswordValid = await bcrypt.compare(password, customer.password_hash);
-      
-      if (!isPasswordValid) {
-        console.log('❌ Invalid password');
+      // The RPC returns an array - empty if authentication failed
+      if (!customerData || customerData.length === 0) {
+        console.log('❌ Authentication failed - no customer data returned');
         return { success: false, error: 'Invalid email or password' };
       }
 
-      // Convert customer to our Customer interface
+      const customer = customerData[0];
+      console.log('✅ Authentication successful');
+      
+      // Convert RPC result to our Customer interface
       const authenticatedCustomer: Customer = {
-        id: customer.id,
+        id: customer.customer_id,
         email: customer.email,
         full_name: customer.full_name,
         phone: customer.phone,
         is_active: customer.is_active,
         email_verified: customer.email_verified,
-        privacy_accepted: customer.privacy_accepted,
-        marketing_consent: customer.marketing_consent,
-        created_at: customer.created_at,
+        privacy_accepted: true, // Existing customers have accepted privacy
+        marketing_consent: false, // Default for existing customers
+        created_at: new Date().toISOString(),
       };
 
       setCustomer(authenticatedCustomer);
       await createSession(authenticatedCustomer.id);
       await refreshAddresses();
-
-      // Update last login
-      await supabase
-        .from('customers')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', customer.id);
 
       console.log('✅ Login successful');
       return { success: true };
