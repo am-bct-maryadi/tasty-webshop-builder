@@ -148,7 +148,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const { data: customerData, error } = await supabase
         .rpc('authenticate_customer', {
           p_email: email.toLowerCase(),
-          p_password_hash: hashedPassword
+          p_password_hash: password
         });
       
       if (error) {
