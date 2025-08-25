@@ -190,6 +190,14 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       setCustomer(authenticatedCustomer);
       await createSession(authenticatedCustomer.id);
+      
+      // Set database context for RLS policies
+      await supabase.rpc('set_config', {
+        setting_name: 'app.current_customer_id',
+        setting_value: authenticatedCustomer.id,
+        is_local: false
+      });
+      
       await refreshAddresses();
 
       console.log('✅ Login successful');
@@ -262,6 +270,14 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       setCustomer(newCustomer);
       await createSession(newCustomer.id);
+      
+      // Set database context for RLS policies
+      await supabase.rpc('set_config', {
+        setting_name: 'app.current_customer_id',
+        setting_value: newCustomer.id,
+        is_local: false
+      });
+      
       await refreshAddresses();
 
       return { success: true };
@@ -285,6 +301,18 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     localStorage.removeItem('customer-session-token');
+    
+    // Clear database context
+    try {
+      await supabase.rpc('set_config', {
+        setting_name: 'app.current_customer_id',
+        setting_value: '',
+        is_local: false
+      });
+    } catch (error) {
+      console.error('Error clearing database context:', error);
+    }
+    
     setCustomer(null);
     setAddresses([]);
   };
