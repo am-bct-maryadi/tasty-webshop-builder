@@ -539,6 +539,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_customer_for_auth: {
+        Args: { p_email: string }
+        Returns: {
+          created_at: string
+          customer_id: string
+          email: string
+          email_verified: boolean
+          full_name: string
+          is_active: boolean
+          marketing_consent: boolean
+          password_hash: string
+          phone: string
+          privacy_accepted: boolean
+        }[]
+      }
       is_user_active: {
         Args: { user_uuid: string }
         Returns: boolean

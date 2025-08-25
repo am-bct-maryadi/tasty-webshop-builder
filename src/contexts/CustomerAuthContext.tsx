@@ -140,32 +140,42 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       console.log('🔐 Starting login process for:', email);
       
-      // Hash the password to match the stored hash format
-      const hashedPassword = await bcrypt.hash(password, 12);
-      
-      // Use the existing authenticate_customer database function
-      // This bypasses RLS and performs secure server-side authentication
+      // Get customer data using the secure database function
       const { data: customerData, error } = await supabase
-        .rpc('authenticate_customer', {
-          p_email: email.toLowerCase(),
-          p_password_hash: password
+        .rpc('get_customer_for_auth', {
+          p_email: email.toLowerCase()
         });
       
       if (error) {
-        console.log('❌ Authentication RPC error:', error);
+        console.log('❌ Database error:', error);
         return { success: false, error: 'Invalid email or password' };
       }
 
-      // The RPC returns an array - empty if authentication failed
+      // Check if customer exists
       if (!customerData || customerData.length === 0) {
-        console.log('❌ Authentication failed - no customer data returned');
+        console.log('❌ No customer found with this email');
         return { success: false, error: 'Invalid email or password' };
       }
 
       const customer = customerData[0];
+      
+      // Verify password using bcrypt
+      const isPasswordValid = await bcrypt.compare(password, customer.password_hash);
+      
+      if (!isPasswordValid) {
+        console.log('❌ Password verification failed');
+        return { success: false, error: 'Invalid email or password' };
+      }
+
       console.log('✅ Authentication successful');
       
-      // Convert RPC result to our Customer interface
+      // Update last login timestamp
+      await supabase
+        .from('customers')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', customer.customer_id);
+      
+      // Convert database result to our Customer interface
       const authenticatedCustomer: Customer = {
         id: customer.customer_id,
         email: customer.email,
@@ -173,9 +183,9 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         phone: customer.phone,
         is_active: customer.is_active,
         email_verified: customer.email_verified,
-        privacy_accepted: true, // Existing customers have accepted privacy
-        marketing_consent: false, // Default for existing customers
-        created_at: new Date().toISOString(),
+        privacy_accepted: customer.privacy_accepted,
+        marketing_consent: customer.marketing_consent,
+        created_at: customer.created_at,
       };
 
       setCustomer(authenticatedCustomer);
