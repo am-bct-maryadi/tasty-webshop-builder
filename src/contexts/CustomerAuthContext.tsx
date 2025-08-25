@@ -104,6 +104,12 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       setCustomer(session.customers);
+      
+      // Set database context for RLS policies
+      await supabase.rpc('set_customer_context', {
+        customer_id_param: session.customers.id
+      });
+      
       await refreshAddresses();
       
       // Update last login
@@ -192,10 +198,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       await createSession(authenticatedCustomer.id);
       
       // Set database context for RLS policies
-      await supabase.rpc('set_config', {
-        setting_name: 'app.current_customer_id',
-        setting_value: authenticatedCustomer.id,
-        is_local: false
+      await supabase.rpc('set_customer_context', {
+        customer_id_param: authenticatedCustomer.id
       });
       
       await refreshAddresses();
@@ -272,10 +276,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       await createSession(newCustomer.id);
       
       // Set database context for RLS policies
-      await supabase.rpc('set_config', {
-        setting_name: 'app.current_customer_id',
-        setting_value: newCustomer.id,
-        is_local: false
+      await supabase.rpc('set_customer_context', {
+        customer_id_param: newCustomer.id
       });
       
       await refreshAddresses();
@@ -304,10 +306,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     
     // Clear database context
     try {
-      await supabase.rpc('set_config', {
-        setting_name: 'app.current_customer_id',
-        setting_value: '',
-        is_local: false
+      await supabase.rpc('set_customer_context', {
+        customer_id_param: ''
       });
     } catch (error) {
       console.error('Error clearing database context:', error);

@@ -558,6 +558,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
+      set_customer_context: {
+        Args: { customer_id_param: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

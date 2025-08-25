@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/contexts/AdminContext';
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { formatCurrency } from '@/lib/utils';
 import type { Product } from '../product/ProductCard';
 
@@ -34,6 +35,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
 }) => {
   const { toast } = useToast();
   const { promos } = useAdmin();
+  const { customer, addresses } = useCustomerAuth();
   const [customerInfo, setCustomerInfo] = React.useState({
     name: '',
     phone: '',
@@ -41,6 +43,18 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     notes: ''
   });
   const [promoCode, setPromoCode] = React.useState('');
+
+  // Auto-fill customer data when authenticated
+  React.useEffect(() => {
+    if (customer) {
+      setCustomerInfo(prev => ({
+        ...prev,
+        name: customer.full_name || prev.name,
+        phone: customer.phone || prev.phone,
+        address: addresses.find(addr => addr.is_default)?.address_line1 || prev.address
+      }));
+    }
+  }, [customer, addresses]);
 
   // Auto-fill promo code when claimed from popup
   React.useEffect(() => {
@@ -137,6 +151,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     try {
       const selectedBranchId = localStorage.getItem('selectedBranch') || 'default-branch';
       const orderData = {
+        customer_id: customer?.id || null,
         customer_name: customerInfo.name,
         customer_phone: customerInfo.phone,
         customer_address: customerInfo.address,
@@ -264,11 +279,13 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                     placeholder="Your name *"
                     value={customerInfo.name}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
+                    disabled={!!customer}
                   />
                   <Input
                     placeholder="Phone number *"
                     value={customerInfo.phone}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                    disabled={!!customer}
                   />
                   <Textarea
                     placeholder="Delivery address *"
@@ -282,6 +299,11 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, notes: e.target.value }))}
                     className="min-h-[60px]"
                   />
+                  {customer && (
+                    <p className="text-xs text-muted-foreground">
+                      Name and phone are auto-filled from your account
+                    </p>
+                  )}
                 </div>
               </div>
 
