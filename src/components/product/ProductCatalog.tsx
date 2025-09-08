@@ -144,7 +144,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
               <h2 className="text-3xl font-bold mb-3">Our Menu</h2>
               <p className="text-lg text-muted-foreground">Delicious food made fresh daily</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
               {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
