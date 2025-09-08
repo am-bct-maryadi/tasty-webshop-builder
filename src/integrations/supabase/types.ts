@@ -271,10 +271,13 @@ export type Database = {
           customer_id: string | null
           customer_name: string
           customer_phone: string
+          delivery_type: string | null
           discount: number | null
           id: string
           items: Json
           notes: string | null
+          pickup_branch: string | null
+          pickup_time: string | null
           promo_code: string | null
           status: string
           subtotal: number
@@ -288,10 +291,13 @@ export type Database = {
           customer_id?: string | null
           customer_name: string
           customer_phone: string
+          delivery_type?: string | null
           discount?: number | null
           id?: string
           items: Json
           notes?: string | null
+          pickup_branch?: string | null
+          pickup_time?: string | null
           promo_code?: string | null
           status?: string
           subtotal: number
@@ -305,10 +311,13 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string
           customer_phone?: string
+          delivery_type?: string | null
           discount?: number | null
           id?: string
           items?: Json
           notes?: string | null
+          pickup_branch?: string | null
+          pickup_time?: string | null
           promo_code?: string | null
           status?: string
           subtotal?: number
@@ -321,6 +330,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_pickup_branch_fkey"
+            columns: ["pickup_branch"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
         ]
