@@ -52,6 +52,14 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
     return filtered;
   }, [selectedCategory, searchQuery, products]);
 
+  // Calculate accurate category counts based on actual filtered products
+  const categoriesWithCounts = useMemo(() => {
+    return categories.map(category => ({
+      ...category,
+      count: products.filter(product => product.category === category.name).length
+    }));
+  }, [categories, products]);
+
   const handleAddToCart = (product: Product) => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
@@ -123,7 +131,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
 
       {/* Category Filter */}
       <CategoryFilter
-        categories={categories}
+        categories={categoriesWithCounts}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
       />

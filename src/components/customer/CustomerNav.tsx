@@ -33,11 +33,11 @@ export const CustomerNav: React.FC = () => {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuContent className="w-48 sm:w-56" align="end" forceMount>
           <div className="flex items-center justify-start gap-2 p-2">
             <div className="flex flex-col space-y-1 leading-none">
               <p className="font-medium text-sm">{customer.full_name}</p>
-              <p className="w-[200px] truncate text-xs text-muted-foreground">
+              <p className="w-[160px] sm:w-[200px] truncate text-xs text-muted-foreground">
                 {customer.email}
               </p>
             </div>
@@ -67,10 +67,11 @@ export const CustomerNav: React.FC = () => {
         variant="outline" 
         size="sm" 
         onClick={() => setShowAuthDialog(true)}
-        className="flex items-center gap-2"
+        className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3"
       >
-        <User className="h-4 w-4" />
-        Sign In
+        <User className="h-3 w-3 sm:h-4 sm:w-4" />
+        <span className="hidden sm:inline">Sign In</span>
+        <span className="sm:hidden">Login</span>
       </Button>
       
       <CustomerAuthDialog

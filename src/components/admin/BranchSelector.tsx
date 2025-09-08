@@ -8,32 +8,37 @@ export const BranchSelector: React.FC = () => {
   const { branches, selectedAdminBranch, setSelectedAdminBranch } = useAdmin();
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
+    <Card className="mb-4 sm:mb-6">
+      <CardHeader className="pb-4 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+          <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
           Branch Management
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Select a branch to manage its products and categories, or view all data across branches
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <Select value={selectedAdminBranch || 'all'} onValueChange={(value) => setSelectedAdminBranch(value === 'all' ? null : value)}>
-          <SelectTrigger className="w-full max-w-md">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select branch to manage" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Branches (Master View)</SelectItem>
             {branches.map((branch) => (
               <SelectItem key={branch.id} value={branch.id}>
-                {branch.name} - {branch.address}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
+                  <span className="font-medium">{branch.name}</span>
+                  <span className="text-xs text-muted-foreground sm:ml-2">
+                    {branch.address}
+                  </span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         {selectedAdminBranch && (
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
             Currently managing: <span className="font-medium">
               {branches.find(b => b.id === selectedAdminBranch)?.name}
             </span>
