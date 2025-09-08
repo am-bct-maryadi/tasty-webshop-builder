@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       banners: {
         Row: {
-          branch_id: string
+          branch_id: string | null
           created_at: string
           description: string | null
           display_order: number
@@ -31,7 +31,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          branch_id: string
+          branch_id?: string | null
           created_at?: string
           description?: string | null
           display_order?: number
@@ -46,7 +46,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          branch_id?: string
+          branch_id?: string | null
           created_at?: string
           description?: string | null
           display_order?: number

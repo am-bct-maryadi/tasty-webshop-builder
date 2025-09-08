@@ -48,7 +48,7 @@ export const BannerDisplay: React.FC<BannerDisplayProps> = ({ position, branchId
 
       // Filter by branch if specified
       if (branchId) {
-        query = query.or(`branch_id.eq.${branchId},branch_id.eq.all`);
+        query = query.or(`branch_id.eq.${branchId},branch_id.is.null`);
       }
 
       const { data, error } = await query;

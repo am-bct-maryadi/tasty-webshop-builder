@@ -84,7 +84,7 @@ export const BannerManagement: React.FC = () => {
         position: banner.position as Banner['position'],
         isActive: banner.is_active,
         order: banner.display_order,
-        branchId: banner.branch_id,
+        branchId: banner.branch_id || 'all',
         startDate: banner.start_date,
         endDate: banner.end_date
       }));
@@ -127,7 +127,7 @@ export const BannerManagement: React.FC = () => {
         position: data.position,
         is_active: data.isActive,
         display_order: data.order,
-        branch_id: data.branchId,
+        branch_id: data.branchId === 'all' ? null : data.branchId,
         start_date: data.startDate,
         end_date: data.endDate
       };
@@ -159,7 +159,10 @@ export const BannerManagement: React.FC = () => {
 
   const handleEdit = (banner: Banner) => {
     setEditingBanner(banner.id);
-    form.reset(banner);
+    form.reset({
+      ...banner,
+      branchId: banner.branchId || 'all'
+    });
     setIsDialogOpen(true);
   };
 
@@ -480,7 +483,7 @@ export const BannerManagement: React.FC = () => {
                   </TableCell>
                   <TableCell className="capitalize">{banner.position}</TableCell>
                   <TableCell>
-                    {banner.branchId === 'all' ? 'All Branches' : branches.find(b => b.id === banner.branchId)?.name || 'Unknown'}
+                    {banner.branchId === 'all' || !banner.branchId ? 'All Branches' : branches.find(b => b.id === banner.branchId)?.name || 'Unknown'}
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
