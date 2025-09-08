@@ -135,6 +135,17 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
         });
         return;
       }
+      // Validate pickup time is in the future (at least 30 minutes from now)
+      const selectedPickupTime = new Date(pickupTime);
+      const minAllowedTime = new Date(Date.now() + 30 * 60 * 1000);
+      if (selectedPickupTime < minAllowedTime) {
+        toast({
+          title: "Invalid Pickup Time",
+          description: "Pickup time must be at least 30 minutes from now",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // Format order for WhatsApp
@@ -184,7 +195,7 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
         customer_address: deliveryType === 'delivery' ? customerInfo.address : "-",
         delivery_type: deliveryType,
         pickup_branch: deliveryType === 'pickup' ? pickupBranch : null,
-        pickup_time: deliveryType === 'pickup' ? pickupTime : null,
+        pickup_time: deliveryType === 'pickup' ? new Date(pickupTime + ':00+07:00').toISOString() : null,
         items: items.map(item => ({
           product_id: item.id,
           product_name: item.name,
@@ -390,6 +401,7 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
                         className="border rounded px-2 py-2"
                         value={pickupTime}
                         onChange={e => setPickupTime(e.target.value)}
+                        min={new Date(Date.now() + 30 * 60 * 1000).toISOString().slice(0, 16)}
                       />
                     </>
                   )}

@@ -233,7 +233,14 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
                   </TableCell>
                   <TableCell>
                     {order.delivery_type === 'pickup' && order.pickup_time
-                      ? new Date(order.pickup_time).toLocaleString('id-ID')
+                      ? new Date(order.pickup_time).toLocaleString('id-ID', {
+                          timeZone: 'Asia/Jakarta',
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
                       : '-'}
                   </TableCell>
                   <TableCell>
@@ -306,7 +313,14 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
                                       </div>
                                       <div>
                                         <Label>Pickup Time</Label>
-                                        <p>{selectedOrder.pickup_time ? new Date(selectedOrder.pickup_time).toLocaleString('id-ID') : '-'}</p>
+                                        <p>{selectedOrder.pickup_time ? new Date(selectedOrder.pickup_time).toLocaleString('id-ID', {
+                                          timeZone: 'Asia/Jakarta',
+                                          year: 'numeric',
+                                          month: '2-digit',
+                                          day: '2-digit',
+                                          hour: '2-digit',
+                                          minute: '2-digit'
+                                        }) : '-'}</p>
                                       </div>
                                     </>
                                   ) : (
