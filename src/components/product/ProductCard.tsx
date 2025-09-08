@@ -83,13 +83,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      <div className="p-6 flex-1 flex flex-col">
-        <div className="flex-1 mb-6">
-          <h3 className="font-bold text-xl leading-tight mb-3 text-foreground group-hover:text-primary transition-smooth line-clamp-2">
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="flex-1 mb-4">
+          <h3 className="font-bold text-lg leading-tight mb-2 text-foreground group-hover:text-primary transition-smooth line-clamp-2">
             {product.name}
           </h3>
           
-          <p className="text-base text-muted-foreground line-clamp-3 leading-relaxed">
+          <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
             {product.description}
           </p>
         </div>
@@ -98,18 +98,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="mt-auto">
           <Button
             variant={product.isAvailable ? "gradient" : "secondary"}
-            size="lg"
-            className="w-full font-bold text-lg h-14 transition-bounce hover:scale-105 active:scale-95 shadow-medium"
+            size="default"
+            className="w-full font-semibold text-sm h-10 transition-bounce hover:scale-105 active:scale-95 shadow-medium"
             onClick={() => onAddToCart?.(product)}
             disabled={!product.isAvailable}
           >
             {product.isAvailable ? (
               <>
-                <Plus className="h-5 w-5 mr-2" />
+                <Plus className="h-4 w-4 mr-1" />
                 Add to Cart
               </>
             ) : (
-              "Currently Unavailable"
+              "Unavailable"
             )}
           </Button>
         </div>
