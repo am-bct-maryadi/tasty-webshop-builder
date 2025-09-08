@@ -531,6 +531,7 @@ export type Database = {
       }
       users: {
         Row: {
+          auth_user_id: string | null
           branch_id: string
           created_at: string | null
           email: string
@@ -541,6 +542,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          auth_user_id?: string | null
           branch_id: string
           created_at?: string | null
           email: string
@@ -551,6 +553,7 @@ export type Database = {
           username: string
         }
         Update: {
+          auth_user_id?: string | null
           branch_id?: string
           created_at?: string | null
           email?: string
@@ -629,6 +632,10 @@ export type Database = {
       is_user_active: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      link_user_to_auth: {
+        Args: { p_email: string; p_password: string; p_username: string }
+        Returns: string
       }
       set_customer_context: {
         Args: { customer_id_param: string }
