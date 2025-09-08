@@ -71,13 +71,21 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
-      if (selectedAdminBranch) {
+      
+      // Only filter by branch if a specific branch is selected
+      // If no branch is selected or it's 'all', show all orders
+      if (selectedAdminBranch && selectedAdminBranch !== 'all') {
         query = query.eq('branch_id', selectedAdminBranch);
       }
+      
       const { data, error } = await query;
       if (error) throw error;
+      
+      console.log('Orders query - selectedAdminBranch:', selectedAdminBranch);
+      console.log('Fetched orders count:', data?.length || 0);
+      console.log('Sample order branch_ids:', data?.slice(0, 3).map(o => o.branch_id));
+      
       setOrders(data || []);
-      console.log('Fetched orders:', data);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast({
@@ -187,7 +195,7 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
         <CardHeader>
           <CardTitle>Recent Orders</CardTitle>
           <CardDescription>
-            {filteredOrders.length} order(s) found
+            {filteredOrders.length} order(s) found {selectedAdminBranch ? `for selected branch` : `(all branches)`}
           </CardDescription>
         </CardHeader>
         <CardContent>
