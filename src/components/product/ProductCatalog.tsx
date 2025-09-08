@@ -56,7 +56,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
   const categoriesWithCounts = useMemo(() => {
     return categories.map(category => ({
       ...category,
-      count: products.filter(product => product.category === category.name).length
+      count: products.filter(product => product.category === category.id).length
     }));
   }, [categories, products]);
 

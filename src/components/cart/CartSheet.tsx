@@ -26,15 +26,16 @@ interface CartSheetProps {
   promoCode?: string;
 }
 
-export const CartSheet: React.FC<CartSheetProps> = ({
-  items,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
-  promoCode: externalPromoCode
-}) => {
+export const CartSheet: React.FC<CartSheetProps> = (props) => {
+  const {
+    items,
+    onUpdateQuantity,
+    onRemoveItem,
+    onClearCart,
+    promoCode: externalPromoCode
+  } = props;
   const { toast } = useToast();
-  const { promos } = useAdmin();
+  const { promos, branches } = useAdmin();
   const { customer, addresses } = useCustomerAuth();
   const [customerInfo, setCustomerInfo] = React.useState({
     name: '',
@@ -43,6 +44,9 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     notes: ''
   });
   const [promoCode, setPromoCode] = React.useState('');
+  const [deliveryType, setDeliveryType] = React.useState<'delivery' | 'pickup'>('delivery');
+  const [pickupBranch, setPickupBranch] = React.useState<string>('');
+  const [pickupTime, setPickupTime] = React.useState<string>('');
 
   // Auto-fill customer data when authenticated
   React.useEffect(() => {
@@ -69,54 +73,79 @@ export const CartSheet: React.FC<CartSheetProps> = ({
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
+
   const calculateDiscount = (subtotal: number): number => {
     if (!promoCode) return 0;
-    
-    // Get selected branch and find promo
     const selectedBranchId = localStorage.getItem('selectedBranch');
     if (!selectedBranchId) return 0;
-    
     try {
-      const validPromo = promos.find(p => 
-        p.code === promoCode && 
-        (p.branchId === selectedBranchId || p.branchId === 'all') && 
+      const validPromo = promos.find(p =>
+        p.code === promoCode &&
+        (p.branchId === selectedBranchId || p.branchId === 'all') &&
         p.isActive &&
         new Date(p.expiryDate) > new Date() &&
         subtotal >= p.minOrderAmount
       );
-      
       if (validPromo) {
-        return validPromo.type === 'percentage' 
-          ? subtotal * (validPromo.value / 100) 
+        return validPromo.type === 'percentage'
+          ? subtotal * (validPromo.value / 100)
           : validPromo.value;
       }
     } catch (error) {
       console.log('Error calculating promo discount:', error);
     }
-    
     return 0;
   };
-  
+
   const discount = calculateDiscount(subtotal);
   const totalPrice = subtotal - discount;
 
   const handleWhatsAppOrder = async () => {
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+    // Validate required fields based on delivery type
+    if (!customerInfo.name || !customerInfo.phone) {
       toast({
         title: "Missing Information",
-        description: "Please fill in your name, phone number, and delivery address",
+        description: "Please fill in your name and phone number",
         variant: "destructive",
       });
       return;
+    }
+    if (deliveryType === 'delivery' && !customerInfo.address) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in your delivery address",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (deliveryType === 'pickup') {
+      if (!pickupBranch) {
+        toast({
+          title: "Missing Information",
+          description: "Please select a branch for pickup",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!pickupTime) {
+        toast({
+          title: "Missing Information",
+          description: "Please select a pickup time",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // Format order for WhatsApp
     const orderText = `🍽️ *New Order from ${customerInfo.name}*\n\n` +
       `📱 Phone: ${customerInfo.phone}\n` +
-      `📍 Address: ${customerInfo.address}\n\n` +
-      `📋 *Order Details:*\n` +
-      items.map(item => 
+      (deliveryType === 'delivery'
+        ? `📍 Address: ${customerInfo.address}\n`
+        : `🏬 Pickup Branch: ${branches?.find(b => b.id === pickupBranch)?.name || ''}\n🕒 Pickup Time: ${pickupTime}\n`
+      ) +
+      `\n📋 *Order Details:*\n` +
+      items.map(item =>
         `• ${item.name} x${item.quantity} - ${formatCurrency(item.price * item.quantity)}`
       ).join('\n') +
       `\n\n💰 *Subtotal: ${formatCurrency(subtotal)}*` +
@@ -129,14 +158,12 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     let whatsappNumber = "628158882505"; // Default fallback number
     try {
       const selectedBranchId = localStorage.getItem('selectedBranch');
-      
       if (selectedBranchId) {
         const { data: branchData } = await supabase
           .from('branches')
           .select('whatsapp_number')
           .eq('id', selectedBranchId)
           .single();
-        
         if (branchData?.whatsapp_number) {
           whatsappNumber = branchData.whatsapp_number;
         }
@@ -146,7 +173,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
     }
 
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderText)}`;
-    
+
     // Save order to database
     try {
       const selectedBranchId = localStorage.getItem('selectedBranch') || 'default-branch';
@@ -154,7 +181,10 @@ export const CartSheet: React.FC<CartSheetProps> = ({
         customer_id: customer?.id || null,
         customer_name: customerInfo.name,
         customer_phone: customerInfo.phone,
-        customer_address: customerInfo.address,
+        customer_address: deliveryType === 'delivery' ? customerInfo.address : "-",
+        delivery_type: deliveryType,
+        pickup_branch: deliveryType === 'pickup' ? pickupBranch : null,
+        pickup_time: deliveryType === 'pickup' ? pickupTime : null,
         items: items.map(item => ({
           product_id: item.id,
           product_name: item.name,
@@ -170,36 +200,50 @@ export const CartSheet: React.FC<CartSheetProps> = ({
         branch_id: selectedBranchId
       };
 
-      await supabase.from('orders').insert(orderData);
+      const { error } = await supabase.from('orders').insert(orderData);
+      if (error) {
+        console.error('Error saving order:', error);
+        toast({
+          title: "Order Failed",
+          description: "There was a problem saving your order. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      window.open(whatsappUrl, '_blank');
+
+      // Clear cart after successful order
+      onClearCart();
+      setCustomerInfo({ name: '', phone: '', address: '', notes: '' });
+      setPromoCode('');
+
+      toast({
+        title: "Order Sent!",
+        description: "Your order has been sent via WhatsApp. We'll contact you soon!",
+      });
     } catch (error) {
       console.error('Error saving order:', error);
+      toast({
+        title: "Order Failed",
+        description: "There was a problem saving your order. Please try again.",
+        variant: "destructive",
+      });
     }
-    
-    window.open(whatsappUrl, '_blank');
-    
-    // Clear cart after successful order
-    onClearCart();
-    setCustomerInfo({ name: '', phone: '', address: '', notes: '' });
-    setPromoCode('');
-    
-    toast({
-      title: "Order Sent!",
-      description: "Your order has been sent via WhatsApp. We'll contact you soon!",
-    });
   };
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button 
-          variant="gradient" 
-          size="icon" 
+        <Button
+          variant="gradient"
+          size="icon"
           className="fixed bottom-20 right-4 z-40 h-14 w-14 rounded-full shadow-strong md:bottom-4"
         >
           <ShoppingCart className="h-6 w-6" />
           {totalItems > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs"
             >
               {totalItems}
@@ -270,7 +314,33 @@ export const CartSheet: React.FC<CartSheetProps> = ({
 
             <div className="space-y-4">
               <Separator />
-              
+
+              {/* Delivery Type Selection */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Order Type</Label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="delivery"
+                      checked={deliveryType === 'delivery'}
+                      onChange={() => setDeliveryType('delivery')}
+                    />
+                    Delivery
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="pickup"
+                      checked={deliveryType === 'pickup'}
+                      onChange={() => setDeliveryType('pickup')}
+                    />
+                    Pick Up
+                  </label>
+                </div>
+              </div>
               {/* Customer Information */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Customer Information</Label>
@@ -287,12 +357,42 @@ export const CartSheet: React.FC<CartSheetProps> = ({
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
                     disabled={!!customer}
                   />
-                  <Textarea
-                    placeholder="Delivery address *"
-                    value={customerInfo.address}
-                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, address: e.target.value }))}
-                    className="min-h-[60px]"
-                  />
+                  {deliveryType === 'delivery' && (
+                    <Textarea
+                      placeholder="Delivery address *"
+                      value={customerInfo.address}
+                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, address: e.target.value }))}
+                      className="min-h-[60px]"
+                    />
+                  )}
+                  {deliveryType === 'pickup' && (
+                    <>
+                      <Label className="text-xs font-medium">Select Branch *</Label>
+                      <select
+                        className="border rounded px-2 py-2"
+                        value={pickupBranch}
+                        onChange={e => setPickupBranch(e.target.value)}
+                      >
+                        <option value="">Select branch</option>
+                        {Array.isArray(addresses) && addresses.length === 0 && (
+                          <option disabled>No branches available</option>
+                        )}
+                        {/* Use branches from admin context */}
+                        {useAdmin().branches?.map(branch => (
+                          <option key={branch.id} value={branch.id}>
+                            {branch.name}
+                          </option>
+                        ))}
+                      </select>
+                      <Label className="text-xs font-medium">Pickup Time *</Label>
+                      <input
+                        type="datetime-local"
+                        className="border rounded px-2 py-2"
+                        value={pickupTime}
+                        onChange={e => setPickupTime(e.target.value)}
+                      />
+                    </>
+                  )}
                   <Textarea
                     placeholder="Special requests or notes (optional)"
                     value={customerInfo.notes}
@@ -345,7 +445,7 @@ export const CartSheet: React.FC<CartSheetProps> = ({
               </div>
 
               <Separator />
-              
+
               {/* Total */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">

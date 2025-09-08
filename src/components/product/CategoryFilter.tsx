@@ -86,7 +86,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       {showScrollTop && (
         <Button
           onClick={scrollToTop}
-          className="fixed bottom-20 right-4 z-50 h-12 w-12 rounded-full shadow-lg"
+          className="fixed bottom-20 left-4 z-50 h-12 w-12 rounded-full shadow-lg"
           size="icon"
           variant="gradient"
         >

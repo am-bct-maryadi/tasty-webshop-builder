@@ -19,7 +19,10 @@ export interface Order {
   id: string;
   customer_name: string;
   customer_phone: string;
-  customer_address: string;
+  customer_address: string | null;
+  delivery_type?: 'delivery' | 'pickup';
+  pickup_branch?: string | null;
+  pickup_time?: string | null;
   items: Array<{
     product_id: string;
     product_name: string;
@@ -37,8 +40,19 @@ export interface Order {
   updated_at: string;
 }
 
-export const OrdersManagement: React.FC = () => {
+function isPickupSoon(order: Order): boolean {
+  return (
+    order.delivery_type === 'pickup' &&
+    order.pickup_time &&
+    new Date(order.pickup_time).getTime() - Date.now() <= 60 * 60 * 1000 &&
+    new Date(order.pickup_time).getTime() - Date.now() > 0 &&
+    order.status !== 'ready' && order.status !== 'delivered' && order.status !== 'cancelled'
+  );
+}
+
+export const OrdersManagement: React.FC = function OrdersManagement() {
   const { selectedAdminBranch, branches } = useAdmin();
+  console.log('selectedAdminBranch:', selectedAdminBranch);
   const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,16 +71,13 @@ export const OrdersManagement: React.FC = () => {
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
-      
-      // Filter by branch if one is selected
       if (selectedAdminBranch) {
         query = query.eq('branch_id', selectedAdminBranch);
       }
-      
       const { data, error } = await query;
-      
       if (error) throw error;
       setOrders(data || []);
+      console.log('Fetched orders:', data);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast({
@@ -85,16 +96,12 @@ export const OrdersManagement: React.FC = () => {
         .from('orders')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq('id', orderId);
-
       if (error) throw error;
-
-      // Update local state
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
+      setOrders(prev => prev.map(order =>
+        order.id === orderId
           ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
           : order
       ));
-
       toast({
         title: "Order Updated",
         description: `Order status changed to ${newStatus}`,
@@ -121,11 +128,10 @@ export const OrdersManagement: React.FC = () => {
     }
   };
 
-
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer_phone.includes(searchTerm) ||
-                         order.id.includes(searchTerm);
+      order.customer_phone.includes(searchTerm) ||
+      order.id.includes(searchTerm);
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -136,22 +142,20 @@ export const OrdersManagement: React.FC = () => {
     { value: 'preparing', label: 'Preparing', icon: Package },
     { value: 'ready', label: 'Ready', icon: CheckCircle },
     { value: 'delivered', label: 'Delivered', icon: CheckCircle },
-    { value: 'cancelled', label: 'Cancelled', icon: XCircle },
-  ];
+    { value: 'cancelled', label: 'Cancelled', icon: XCircle }
+  ]
 
   return (
     <div className="space-y-6">
       <BranchSelector />
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Orders Management</h1>
-          <p className="text-muted-foreground">Manage and track customer orders</p>
-        </div>
+        <h1 className="text-3xl font-bold">Orders Management</h1>
         <Button variant="outline" className="gap-2">
           <Download className="h-4 w-4" />
           Export Orders
         </Button>
       </div>
+      <p className="text-muted-foreground">Manage and track customer orders</p>
 
       {/* Filters */}
       <div className="flex gap-4">
@@ -192,6 +196,8 @@ export const OrdersManagement: React.FC = () => {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Pickup Time</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
@@ -200,8 +206,11 @@ export const OrdersManagement: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
+              {filteredOrders.map(order => (
+                <TableRow
+                  key={order.id}
+                  className={isPickupSoon(order) ? 'bg-yellow-100 animate-pulse' : ''}
+                >
                   <TableCell className="font-medium">#{order.id}</TableCell>
                   <TableCell>
                     <div>
@@ -210,8 +219,16 @@ export const OrdersManagement: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
+                    <span className="capitalize">{order.delivery_type || 'delivery'}</span>
+                  </TableCell>
+                  <TableCell>
+                    {order.delivery_type === 'pickup' && order.pickup_time
+                      ? new Date(order.pickup_time).toLocaleString('id-ID')
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
                     <div className="space-y-1">
-                      {order.items.map((item, index) => (
+                      {(typeof order.items === 'string' ? JSON.parse(order.items) : order.items).map((item, index) => (
                         <p key={index} className="text-sm">
                           {item.product_name} x{item.quantity}
                         </p>
@@ -225,6 +242,11 @@ export const OrdersManagement: React.FC = () => {
                     <Badge className={getStatusColor(order.status)}>
                       {order.status}
                     </Badge>
+                    {isPickupSoon(order) && (
+                      <span className="ml-2 inline-block px-2 py-1 text-xs font-semibold bg-yellow-300 text-yellow-900 rounded">
+                        Pickup soon
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
                     {new Date(order.created_at).toLocaleDateString('id-ID')}
@@ -233,8 +255,8 @@ export const OrdersManagement: React.FC = () => {
                     <div className="flex gap-2">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => setSelectedOrder(order)}
                           >
@@ -262,10 +284,27 @@ export const OrdersManagement: React.FC = () => {
                                     <Label>Phone</Label>
                                     <p>{selectedOrder.customer_phone}</p>
                                   </div>
-                                  <div className="col-span-2">
-                                    <Label>Address</Label>
-                                    <p>{selectedOrder.customer_address}</p>
+                                  <div>
+                                    <Label>Type</Label>
+                                    <p className="capitalize">{selectedOrder.delivery_type || 'delivery'}</p>
                                   </div>
+                                  {selectedOrder.delivery_type === 'pickup' ? (
+                                    <>
+                                      <div>
+                                        <Label>Pickup Branch</Label>
+                                        <p>{branches?.find(b => b.id === selectedOrder.pickup_branch)?.name || selectedOrder.pickup_branch || '-'}</p>
+                                      </div>
+                                      <div>
+                                        <Label>Pickup Time</Label>
+                                        <p>{selectedOrder.pickup_time ? new Date(selectedOrder.pickup_time).toLocaleString('id-ID') : '-'}</p>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="col-span-2">
+                                      <Label>Address</Label>
+                                      <p>{selectedOrder.customer_address}</p>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 
@@ -305,9 +344,9 @@ export const OrdersManagement: React.FC = () => {
                               {/* Status Update */}
                               <div>
                                 <Label className="mb-2 block">Update Status</Label>
-                                <Select 
-                                  value={selectedOrder.status} 
-                                  onValueChange={(value: Order['status']) => 
+                                <Select
+                                  value={selectedOrder.status}
+                                  onValueChange={(value: Order['status']) =>
                                     updateOrderStatus(selectedOrder.id, value)
                                   }
                                 >
@@ -336,9 +375,9 @@ export const OrdersManagement: React.FC = () => {
                           )}
                         </DialogContent>
                       </Dialog>
-                      <Select 
-                        value={order.status} 
-                        onValueChange={(value: Order['status']) => 
+                      <Select
+                        value={order.status}
+                        onValueChange={(value: Order['status']) =>
                           updateOrderStatus(order.id, value)
                         }
                       >
