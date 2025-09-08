@@ -8,6 +8,7 @@ import { PromosManagement } from './admin/PromosManagement';
 import { SettingsManagement } from './admin/SettingsManagement';
 import { AnalyticsManagement } from './admin/AnalyticsManagement';
 import { OrdersManagement } from './admin/OrdersManagement';
+import { BannerManagement } from './admin/BannerManagement';
 import { InventoryManagement } from './admin/InventoryManagement';
 import { NotificationManagement } from './admin/NotificationManagement';
 import { BulkDataManagement } from './admin/BulkDataManagement';
@@ -15,7 +16,7 @@ import { ReleaseNotesManagement } from './admin/ReleaseNotesManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Home, Package, Tags, MapPin, Settings, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Home, Package, Tags, MapPin, Settings, ExternalLink, Image } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { AdminFooter } from '@/components/layout/AdminFooter';
 
@@ -34,6 +35,7 @@ const AdminPanel: React.FC = () => {
     { id: 'categories', label: 'Categories', icon: Tags },
     { id: 'branches', label: 'Branches', icon: MapPin },
     { id: 'orders', label: 'Orders', icon: Package },
+    { id: 'banners', label: 'Banner Management', icon: Image },
     { id: 'promos', label: 'Promo Codes', icon: Tags },
     { id: 'bulk', label: 'Bulk Import', icon: Package },
     { id: 'analytics', label: 'Analytics', icon: Package },
@@ -55,6 +57,8 @@ const AdminPanel: React.FC = () => {
         return <BranchesManagement />;
       case 'orders':
         return <OrdersManagement />;
+      case 'banners':
+        return <BannerManagement />;
       case 'promos':
         return <PromosManagement />;
       case 'bulk':

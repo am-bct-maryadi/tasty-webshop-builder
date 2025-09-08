@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          branch_id: string
+          created_at: string
+          description: string | null
+          display_order: number
+          end_date: string
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string | null
+          position: string
+          start_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          end_date?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url?: string | null
+          position?: string
+          start_date?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          end_date?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string | null
+          position?: string
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banners_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branches: {
         Row: {
           address: string
