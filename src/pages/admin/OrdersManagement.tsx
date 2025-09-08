@@ -82,8 +82,10 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
       if (error) throw error;
       
       console.log('Orders query - selectedAdminBranch:', selectedAdminBranch);
+      console.log('Available branches:', branches?.map(b => ({ id: b.id, name: b.name })));
       console.log('Fetched orders count:', data?.length || 0);
-      console.log('Sample order branch_ids:', data?.slice(0, 3).map(o => o.branch_id));
+      console.log('All order branch_ids:', data?.map(o => o.branch_id));
+      console.log('Orders for selected branch:', data?.filter(o => o.branch_id === selectedAdminBranch).length);
       
       setOrders(data || []);
     } catch (error) {
