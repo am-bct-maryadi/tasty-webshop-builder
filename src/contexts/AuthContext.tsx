@@ -73,13 +73,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .from('users')
         .select('*')
         .eq('auth_user_id', authUserId)
-        .single();
+        .maybeSingle();
 
       if (userData && !error) {
         setIsAdmin(userData.role === 'admin' || userData.role === 'super_admin');
+        console.log('✅ User role retrieved:', userData.role);
+      } else {
+        console.log('⚠️ No user role found for auth user:', authUserId);
+        setIsAdmin(false);
       }
     } catch (error) {
-      console.error('Error getting user role:', error);
+      console.error('❌ Error getting user role:', error);
+      setIsAdmin(false);
     }
   };
 
@@ -93,10 +98,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .select('*')
         .eq('username', username)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
       if (userError || !customUser) {
-        console.log('❌ User not found in custom users table');
+        console.log('❌ User not found in custom users table:', userError?.message);
         return false;
       }
 
@@ -112,17 +117,65 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!customUser.auth_user_id) {
         console.log('🔗 Linking user to Supabase Auth...');
         
-        // Create Supabase auth user
+        // Create Supabase auth user without email confirmation
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: customUser.email,
           password: password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              skip_confirmation: true
+            }
           }
         });
+        
+        console.log('🔍 SignUp response:', { authData, signUpError });
 
-        if (signUpError || !authData.user) {
+        if (signUpError) {
           console.error('❌ Failed to create auth user:', signUpError);
+          
+          // Check if user already exists in Supabase Auth
+          if (signUpError.message?.includes('already registered')) {
+            console.log('🔍 User already exists in Supabase Auth, attempting sign in...');
+            
+            // Try to sign in instead
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: customUser.email,
+              password: password
+            });
+            
+            if (signInError) {
+              console.error('❌ Sign in failed:', signInError);
+              return false;
+            }
+            
+            // Link the existing auth user to custom user
+            const { error: updateError } = await supabase
+              .from('users')
+              .update({ auth_user_id: signInData.user.id })
+              .eq('id', customUser.id);
+            
+            if (updateError) {
+              console.error('❌ Failed to link existing user:', updateError);
+              return false;
+            }
+            
+            console.log('✅ Existing user linked successfully!');
+            return true;
+          }
+          
+          return false;
+        }
+
+        if (!authData.user) {
+          console.error('❌ No user data returned from signup');
+          return false;
+        }
+
+        // Check if session exists (no email confirmation required)
+        if (!authData.session) {
+          console.log('⚠️ Email confirmation required. Please check your email and confirm your account first.');
+          console.log('💡 To disable email confirmation: Go to Supabase Dashboard > Authentication > Settings > Email Auth > Disable "Enable email confirmations"');
           return false;
         }
 
