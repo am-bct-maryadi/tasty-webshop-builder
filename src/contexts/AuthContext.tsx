@@ -200,13 +200,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       } else {
         // User already linked, sign in with Supabase Auth
+        console.log('🔍 Attempting sign in for existing linked user:', customUser.email);
+        
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: customUser.email,
           password: password
         });
 
-        if (signInError || !signInData.user) {
+        if (signInError) {
           console.error('❌ Supabase auth sign in failed:', signInError);
+          
+          // If email not confirmed, try to handle it gracefully
+          if (signInError.message?.includes('Email not confirmed')) {
+            console.log('⚠️ Email confirmation required for existing user');
+            console.log('💡 Please check your email and confirm, or disable email confirmation in Supabase Dashboard');
+            console.log('🔗 Auth Settings: https://supabase.com/dashboard/project/pelytyjonytekqdiwjri/auth/providers');
+          }
+          
+          return false;
+        }
+
+        if (!signInData.user) {
+          console.error('❌ No user data returned from sign in');
           return false;
         }
 
