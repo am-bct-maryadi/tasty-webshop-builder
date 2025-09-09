@@ -9,6 +9,7 @@ interface AuthContextType {
   logout: () => void;
   user: User | null;
   session: Session | null;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -258,6 +259,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     user,
     session,
+    loading,
   };
 
   return (

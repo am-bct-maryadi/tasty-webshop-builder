@@ -21,9 +21,21 @@ import { Card } from '@/components/ui/card';
 import { AdminFooter } from '@/components/layout/AdminFooter';
 
 const AdminPanel: React.FC = () => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
   const { brandSettings } = useAdmin();
   const [currentPage, setCurrentPage] = useState('dashboard');
+
+  // Show loading while auth state is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !isAdmin) {
     return <AdminLogin />;
