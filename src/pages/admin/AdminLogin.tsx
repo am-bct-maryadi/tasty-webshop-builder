@@ -20,18 +20,18 @@ export const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log('🔍 Attempting login with username:', username);
       const success = await login(username, password);
       
       if (success) {
+        console.log('✅ Login successful!');
         toast({
           title: "Login Successful",
           description: "Welcome to FoodieApp Admin Dashboard",
         });
-        // Force a small delay to ensure state updates are processed
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+        // Remove the page reload - let React handle the state updates
       } else {
+        console.log('❌ Login failed');
         toast({
           title: "Login Failed",
           description: "Invalid username or password",
@@ -39,6 +39,7 @@ export const AdminLogin: React.FC = () => {
         });
       }
     } catch (error) {
+      console.error('💥 Login error:', error);
       toast({
         title: "Login Error",
         description: "An error occurred during login",
