@@ -49,7 +49,15 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
       );
     }
 
-    return filtered;
+    // Sort products: popular items first, then alphabetically within each group
+    return filtered.sort((a, b) => {
+      // Popular items get priority
+      if (a.isPopular && !b.isPopular) return -1;
+      if (!a.isPopular && b.isPopular) return 1;
+      
+      // Within the same popularity group, sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
   }, [selectedCategory, searchQuery, products]);
 
   // Calculate accurate category counts based on actual filtered products
