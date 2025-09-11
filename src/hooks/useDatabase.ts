@@ -358,8 +358,15 @@ export const useDatabase = () => {
       .order('updated_at', { ascending: false })
       .limit(1)
       .single();
+    
+    console.log('🔍 Raw brand settings from DB:', data);
+    
     if (error && error.code !== 'PGRST116') throw error;
-    return data ? dbToBrandSettings(data) : null;
+    const transformedData = data ? dbToBrandSettings(data) : null;
+    
+    console.log('🔍 Transformed brand settings:', transformedData);
+    
+    return transformedData;
   };
 
   const updateBrandSettings = async (settings: BrandSettings): Promise<BrandSettings> => {

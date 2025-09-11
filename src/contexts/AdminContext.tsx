@@ -424,6 +424,8 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
           db.getBrandSettings(),
         ]);
 
+        console.log('🔍 Loaded brand data:', brandData);
+
         setAllProducts(products);
         
         // Update categories with proper counts
@@ -439,6 +441,8 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         
         if (brandData) {
           setBrandSettings(brandData);
+        } else {
+          console.warn('No brand settings found in database, using defaults');
         }
         setIsLoadingBrandSettings(false);
 
