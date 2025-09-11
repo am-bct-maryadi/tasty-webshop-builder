@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/contexts/AdminContext';
 import { formatCurrency } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { BranchSelector } from '@/components/admin/BranchSelector';
 
 export interface Order {
@@ -87,7 +87,12 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
       console.log('All order branch_ids:', data?.map(o => o.branch_id));
       console.log('Orders for selected branch:', data?.filter(o => o.branch_id === selectedAdminBranch).length);
       
-      setOrders(data || []);
+      setOrders((data || []).map(order => ({
+        ...order,
+        delivery_type: (order.delivery_type as 'delivery' | 'pickup') || 'delivery',
+        items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items,
+        status: order.status as 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+      })));
     } catch (error) {
       console.error('Error loading orders:', error);
       toast({
