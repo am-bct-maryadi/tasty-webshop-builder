@@ -16,6 +16,7 @@ import type { Product } from '../product/ProductCard';
 
 export interface CartItem extends Product {
   quantity: number;
+  note?: string;
 }
 
 interface CartSheetProps {
@@ -23,6 +24,7 @@ interface CartSheetProps {
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemoveItem: (productId: string) => void;
   onClearCart: () => void;
+  onUpdateNote: (productId: string, note: string) => void;
   promoCode?: string;
 }
 
@@ -32,6 +34,7 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
     onUpdateQuantity,
     onRemoveItem,
     onClearCart,
+    onUpdateNote,
     promoCode: externalPromoCode
   } = props;
   const { toast } = useToast();
@@ -157,7 +160,7 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
       ) +
       `\n📋 *Order Details:*\n` +
       items.map(item =>
-        `• ${item.name} x${item.quantity} - ${formatCurrency(item.price * item.quantity)}`
+        `• ${item.name} x${item.quantity} - ${formatCurrency(item.price * item.quantity)}${item.note ? `\n    📝 ${item.note}` : ""}`
       ).join('\n') +
       `\n\n💰 *Subtotal: ${formatCurrency(subtotal)}*` +
       (discount > 0 ? `\n🎟️ *Discount (${promoCode}): -${formatCurrency(discount)}*` : '') +
@@ -200,7 +203,8 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
           product_id: item.id,
           product_name: item.name,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          note: item.note ?? null
         })),
         subtotal,
         discount,
@@ -282,43 +286,51 @@ export const CartSheet: React.FC<CartSheetProps> = (props) => {
           <div className="flex flex-col h-full">
             <div className="flex-1 space-y-4 py-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-12 h-12 rounded-md object-cover"
+                <div key={item.id} className="flex flex-col gap-2 p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-12 h-12 rounded-md object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{item.name}</h4>
+                      <p className="text-primary font-semibold">{formatCurrency(item.price)}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => onRemoveItem(item.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <Textarea
+                    placeholder="Add note for this product (optional)"
+                    value={item.note ?? ""}
+                    onChange={e => onUpdateNote(item.id, e.target.value)}
+                    className="min-h-[40px] mt-1"
                   />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-sm">{item.name}</h4>
-                    <p className="text-primary font-semibold">{formatCurrency(item.price)}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-8 text-center font-medium">{item.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => onRemoveItem(item.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
                 </div>
               ))}
             </div>

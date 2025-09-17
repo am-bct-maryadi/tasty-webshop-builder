@@ -28,6 +28,7 @@ export interface Order {
     product_name: string;
     quantity: number;
     price: number;
+    note?: string | null;
   }>;
   subtotal: number;
   discount: number;
@@ -337,9 +338,16 @@ export const OrdersManagement: React.FC = function OrdersManagement() {
                                 <h3 className="font-semibold mb-2">Order Items</h3>
                                 <div className="space-y-2">
                                   {selectedOrder.items.map((item, index) => (
-                                    <div key={index} className="flex justify-between">
-                                      <span>{item.product_name} x{item.quantity}</span>
-                                      <span>{formatCurrency(item.price * item.quantity)}</span>
+                                    <div key={index} className="flex flex-col gap-1 border-b pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
+                                      <div className="flex justify-between">
+                                        <span>{item.product_name} x{item.quantity}</span>
+                                        <span>{formatCurrency(item.price * item.quantity)}</span>
+                                      </div>
+                                      {item.note && (
+                                        <span className="text-xs text-muted-foreground italic pl-1">
+                                          📝 {item.note}
+                                        </span>
+                                      )}
                                     </div>
                                   ))}
                                 </div>

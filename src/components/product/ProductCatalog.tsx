@@ -70,7 +70,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
             : item
         );
       } else {
-        return [...prev, { ...product, quantity: 1 }];
+        return [...prev, { ...product, quantity: 1, note: "" }];
       }
     });
 
@@ -107,6 +107,14 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
       title: "Cart Cleared",
       description: "All items have been removed from your cart",
     });
+  };
+
+  const handleUpdateNote = (productId: string, note: string) => {
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === productId ? { ...item, note } : item
+      )
+    );
   };
 
   const handleViewDetails = (product: Product) => {
@@ -177,6 +185,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ promoCode, selec
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
+        onUpdateNote={handleUpdateNote}
         promoCode={promoCode}
       />
 

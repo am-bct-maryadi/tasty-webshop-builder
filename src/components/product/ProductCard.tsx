@@ -17,6 +17,10 @@ export interface Product {
   isAvailable: boolean;
   isPopular?: boolean;
   branchId: string;
+  imageCrops?: {
+    landscape: any;
+    portrait: any;
+  };
 }
 
 interface ProductCardProps {

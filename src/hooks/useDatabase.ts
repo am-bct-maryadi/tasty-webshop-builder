@@ -352,14 +352,35 @@ export const useDatabase = () => {
 
   // Brand Settings
   const getBrandSettings = async (): Promise<BrandSettings | null> => {
-    const { data, error } = await supabase
-      .from('brand_settings')
-      .select('*')
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
-    return data ? dbToBrandSettings(data) : null;
+    try {
+      const { data, error } = await supabase
+        .from('brand_settings')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (error && error.code !== 'PGRST116') {
+        console.error('[Supabase] Error fetching brand settings:', error);
+        if (typeof window !== "undefined") {
+          alert('[Supabase] Error fetching brand settings: ' + error.message);
+        }
+        return null;
+      }
+      if (!data) {
+        console.error('[Supabase] No data returned for brand settings!');
+        if (typeof window !== "undefined") {
+          alert('[Supabase] No data returned for brand settings!');
+        }
+        return null;
+      }
+      return dbToBrandSettings(data);
+    } catch (err: any) {
+      console.error('[Supabase] Exception fetching brand settings:', err);
+      if (typeof window !== "undefined") {
+        alert('[Supabase] Exception fetching brand settings: ' + (err?.message || err));
+      }
+      return null;
+    }
   };
 
   const updateBrandSettings = async (settings: BrandSettings): Promise<BrandSettings> => {

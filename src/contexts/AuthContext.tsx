@@ -43,26 +43,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(session?.user ?? null);
         setIsAuthenticated(!!session);
 
-        if (session?.user) {
-          // Get user role from custom users table
-          await getUserRole(session.user.id);
+        // Persist session to localStorage for fallback
+        if (session) {
+          localStorage.setItem('foodieapp-auth-session', JSON.stringify(session));
         } else {
-          setIsAdmin(false);
+          localStorage.removeItem('foodieapp-auth-session');
         }
-        setLoading(false);
+
+        try {
+          if (session?.user) {
+            // Get user role from custom users table
+            await getUserRole(session.user.id);
+          } else {
+            setIsAdmin(false);
+          }
+        } catch (err) {
+          console.error('[AuthProvider] Error in auth state change handler:', err);
+        } finally {
+          setLoading(false);
+          console.log('[AuthProvider] Auth state change handler complete. Loading set to false.');
+        }
       }
     );
 
     // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsAuthenticated(!!session);
-      
-      if (session?.user) {
-        getUserRole(session.user.id);
+      if (session) {
+        console.log('[AuthProvider] Supabase session found:', session);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsAuthenticated(!!session);
+        localStorage.setItem('foodieapp-auth-session', JSON.stringify(session));
+        if (session?.user) {
+          getUserRole(session.user.id);
+        }
+        setLoading(false);
+      } else {
+        // Fallback: try to restore session from localStorage
+        const stored = localStorage.getItem('foodieapp-auth-session');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            console.log('[AuthProvider] Restoring session from localStorage:', parsed);
+            setSession(parsed);
+            setUser(parsed.user ?? null);
+            setIsAuthenticated(true);
+            if (parsed.user) {
+              getUserRole(parsed.user.id);
+            }
+          } catch (e) {
+            console.error('[AuthProvider] Failed to parse session from localStorage:', e);
+            localStorage.removeItem('foodieapp-auth-session');
+          }
+        } else {
+          console.log('[AuthProvider] No session found in Supabase or localStorage');
+        }
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -247,6 +284,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('foodieapp-auth');
       localStorage.removeItem('foodieapp-admin');
       localStorage.removeItem('foodieapp-user');
+      localStorage.removeItem('foodieapp-auth-session');
     } catch (error) {
       console.error('Logout error:', error);
     }

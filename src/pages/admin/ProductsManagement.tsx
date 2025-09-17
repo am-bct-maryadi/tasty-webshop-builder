@@ -13,6 +13,7 @@ import { useAdmin } from '@/contexts/AdminContext';
 import { useToast } from '@/hooks/use-toast';
 import { BranchSelector } from '@/components/admin/BranchSelector';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { DualImageCropper } from '@/components/ui/DualImageCropper';
 import type { Product } from '@/components/product/ProductCard';
 
 // URL validation helper function
@@ -40,6 +41,10 @@ export const ProductsManagement: React.FC = () => {
     category: '',
     isAvailable: true,
     isPopular: false,
+    imageCrops: {
+      landscape: null,
+      portrait: null,
+    },
   });
 
   const filteredProducts = products.filter(product =>
@@ -56,6 +61,7 @@ export const ProductsManagement: React.FC = () => {
       category: '',
       isAvailable: true,
       isPopular: false,
+      imageCrops: { landscape: null, portrait: null },
     });
     setEditingProduct(null);
   };
@@ -85,6 +91,7 @@ export const ProductsManagement: React.FC = () => {
       isAvailable: formData.isAvailable,
       isPopular: formData.isPopular,
       branchId: selectedAdminBranch || '1',
+      imageCrops: formData.imageCrops,
     };
 
     if (editingProduct) {
@@ -115,6 +122,7 @@ export const ProductsManagement: React.FC = () => {
       category: product.category,
       isAvailable: product.isAvailable,
       isPopular: product.isPopular || false,
+      imageCrops: product.imageCrops || { landscape: null, portrait: null },
     });
     setIsDialogOpen(true);
   };
@@ -223,12 +231,27 @@ export const ProductsManagement: React.FC = () => {
                   <ImageUpload
                     value={formData.image}
                     onChange={(imagePath) => setFormData({ ...formData, image: imagePath })}
-                    onRemove={() => setFormData({ ...formData, image: '' })}
+                    onRemove={() => setFormData({ ...formData, image: '', imageCrops: { landscape: null, portrait: null } })}
                     bucket="product-images"
                   />
                   <p className="text-xs text-muted-foreground">
                     Upload a product image or leave empty for default image.
                   </p>
+                  {formData.image && (
+                    <div className="mt-4">
+                      <DualImageCropper
+                        imageUrl={formData.image}
+                        onChange={(crops) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            imageCrops: crops,
+                          }))
+                        }
+                        initialLandscape={formData.imageCrops.landscape || undefined}
+                        initialPortrait={formData.imageCrops.portrait || undefined}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
