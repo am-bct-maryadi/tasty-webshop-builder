@@ -3,7 +3,12 @@ import { MapPin, Phone, Mail, Globe, Facebook, Twitter, Instagram, Linkedin } fr
 import { useAdmin } from '@/contexts/AdminContext';
 
 export const Footer: React.FC = () => {
-  const { brandSettings, branches } = useAdmin();
+  const { brandSettings, branches, isLoadingBrandSettings } = useAdmin();
+
+  // Don't render if brand settings are still loading
+  if (isLoadingBrandSettings) {
+    return null;
+  }
 
   const socialLinks = [
     { name: 'Facebook', url: brandSettings.socialMedia.facebook, icon: Facebook },

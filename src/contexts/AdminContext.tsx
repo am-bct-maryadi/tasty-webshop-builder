@@ -159,6 +159,7 @@ interface AdminContextType {
   // Brand Settings
   brandSettings: BrandSettings;
   updateBrandSettings: (settings: Partial<BrandSettings>) => void;
+  isLoadingBrandSettings: boolean;
   
   // Theme Settings
   themeSettings: ThemeSettings;
@@ -373,7 +374,7 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
   const [allPromos, setAllPromos] = useState<Promo[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
-  // Filtered data based on selected admin branch
+// Filtered data based on selected admin branch
   const promos = selectedAdminBranch 
     ? allPromos.filter(p => p.branchId === selectedAdminBranch)
     : allPromos;
@@ -383,6 +384,7 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     : allUsers;
 
   const [brandSettings, setBrandSettings] = useState<BrandSettings>(initialBrandSettings);
+  const [isLoadingBrandSettings, setIsLoadingBrandSettings] = useState(true);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(() => {
     const saved = localStorage.getItem('foodieapp-theme');
     return saved ? JSON.parse(saved) : initialThemeSettings;
@@ -422,6 +424,8 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
           db.getBrandSettings(),
         ]);
 
+        console.log('🔍 Loaded brand data:', brandData);
+
         setAllProducts(products);
         
         // Update categories with proper counts
@@ -437,7 +441,10 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         
         if (brandData) {
           setBrandSettings(brandData);
+        } else {
+          console.warn('No brand settings found in database, using defaults');
         }
+        setIsLoadingBrandSettings(false);
 
         // Set default branch selection to the first branch to avoid data clustering
         if (branchesData && branchesData.length > 0 && !selectedAdminBranch) {
@@ -453,6 +460,7 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
         setAllUsers(initialUsers);
         setBrandSettings(initialBrandSettings);
         setThemeSettings(initialThemeSettings);
+        setIsLoadingBrandSettings(false);
         
         toast({
           title: "Error",
@@ -1015,8 +1023,9 @@ export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
     addUser,
     updateUser,
     deleteUser,
-    brandSettings,
-    updateBrandSettings,
+        brandSettings,
+        updateBrandSettings,
+        isLoadingBrandSettings,
     themeSettings,
     updateThemeSettings,
     orders,

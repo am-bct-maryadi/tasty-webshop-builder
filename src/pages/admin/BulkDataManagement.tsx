@@ -45,7 +45,7 @@ export const BulkDataManagement: React.FC = () => {
             name: 'Classic Burger',
             description: 'Delicious beef burger with fresh ingredients',
             price: 12.99,
-            category: 'burgers',
+            category: 'Burgers',
             rating: 4.5,
             prepTime: 15,
             isAvailable: true,
@@ -89,18 +89,21 @@ export const BulkDataManagement: React.FC = () => {
     
     switch (selectedType) {
       case 'products':
-        data = products.map(p => ({
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          price: p.price,
-          category: p.category,
-          rating: p.rating,
-          prepTime: p.prepTime,
-          isAvailable: p.isAvailable,
-          isPopular: p.isPopular,
-          image: p.image
-        }));
+        data = products.map(p => {
+          const categoryName = categories.find(c => c.id === p.category)?.name || p.category;
+          return {
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            price: p.price,
+            category: categoryName,
+            rating: p.rating,
+            prepTime: p.prepTime,
+            isAvailable: p.isAvailable,
+            isPopular: p.isPopular,
+            image: p.image
+          };
+        });
         break;
       case 'categories':
         data = categories.map(c => ({
@@ -218,12 +221,15 @@ export const BulkDataManagement: React.FC = () => {
                 (p.name === row.data.name && p.branchId === (selectedAdminBranch || '1'))
               );
               
+              // Find category ID from category name
+              const categoryId = categories.find(c => c.name === row.data.category)?.id || row.data.category;
+              
               if (existingProduct) {
                 updateProduct(existingProduct.id, {
                   name: row.data.name,
                   description: row.data.description || '',
                   price: Number(row.data.price),
-                  category: row.data.category,
+                  category: categoryId,
                   rating: Number(row.data.rating) || 0,
                   prepTime: Number(row.data.prepTime) || 0,
                   isAvailable: Boolean(row.data.isAvailable),
@@ -236,7 +242,7 @@ export const BulkDataManagement: React.FC = () => {
                   name: row.data.name,
                   description: row.data.description || '',
                   price: Number(row.data.price),
-                  category: row.data.category,
+                  category: categoryId,
                   rating: Number(row.data.rating) || 0,
                   prepTime: Number(row.data.prepTime) || 0,
                   isAvailable: Boolean(row.data.isAvailable),

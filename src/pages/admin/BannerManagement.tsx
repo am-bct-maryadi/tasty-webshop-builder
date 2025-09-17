@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { BranchSelector } from '@/components/admin/BranchSelector';
 import { useAdmin } from '@/contexts/AdminContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Banner {
   id: string;
@@ -229,12 +229,12 @@ export const BannerManagement: React.FC = () => {
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={handleAddNew} className="gap-2">
+                <Button onClick={handleAddNew} className="gap-2 relative z-10">
                   <Plus className="h-4 w-4" />
                   Add Banner
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background border z-50">
                 <DialogHeader>
                   <DialogTitle>{editingBanner ? 'Edit Banner' : 'Add New Banner'}</DialogTitle>
                   <DialogDescription>
